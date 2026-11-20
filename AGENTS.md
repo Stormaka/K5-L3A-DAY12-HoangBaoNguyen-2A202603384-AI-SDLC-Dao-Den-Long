@@ -1,13 +1,21 @@
 # AGENTS.md — Đảo Đèn Lồng
 
-3D game (Three.js, browser), 3 nights, lanterns that burn fuel, + deterministic headless mode for automatic grading (Test Contract **v1.2**). Goal: keep >= 60% of lanterns lit until dawn (Ticket-03, see docs/adr/).
+3D game (Three.js, browser), 3 nights, lanterns that burn fuel, + deterministic headless mode for automatic grading (Test Contract **v1.3**, release v1.0.0). Goal: keep >= 60% of lanterns lit until dawn (Ticket-03, see docs/adr/).
 
 ## Commands
-- Install: `npm install` · Play: `npm start` → http://localhost:5173
-- Tests: `npm test` (node:test, must stay green) · Evidence: `npm run proof` (writes docs/proof/phase-3/)
+- Install: `npm install` · Play: `node server.js` (= run_cmd) → http://localhost:5173
+- Tests: `npm test` (node:test, must stay green) · Evidence: `npm run proof` (writes docs/proof/phase-4/)
 - Headless: `node src/headless.js --seed 1 --night 1|2|3 --ticks 600 --out out/run.jsonl`
-- Bot (proves a night is winnable, records inputs): `npm run bot -- <night> <seed> <out.json>`
-- FPS: `PORT=5199 npm start` then `npm run fps` (Chrome via DevTools protocol)
+- Bench: `node scripts/bench.js --seed 42 --duration 30 --out bench.json` (opens Chrome; do NOT run other heavy commands at the same time, they spoil the frame times)
+- Soak: `node --expose-gc scripts/soak.js --seed 7 --nights 10 --out soak.json`
+- Leaderboard export: `node server.js --export-leaderboard out.json` (data in `$DDL_DATA_DIR` or `./data/`, git-ignored)
+- Release bundle: `npm run package` → dist/ · Bot: `npm run bot -- <night> <seed> <out.json>`
+
+## Performance rules (Ticket-04)
+- Many-of-a-kind entities (shades, motes) are drawn with `InstancedMesh` pools in web/main.js; never one Mesh per entity.
+- Nothing may run inside the bench measurement window except the game (no polling child processes).
+- Bench mode is `createWorld(..., { bench: true })` — internal only, never reachable from scenario files (headless output must not change).
+- After any sim optimisation, prove `docs/proof/phase-3/runs/*.jsonl` are byte-identical (`git diff --quiet docs/proof/phase-3/runs` after `node scripts/proof.js phase-3`, then `git restore` the evidence .md).
 
 ## Layout
 - `src/sim/` pure game logic. NO DOM, NO Date/Math.random/wall clock (determinism). Shared by web + headless.

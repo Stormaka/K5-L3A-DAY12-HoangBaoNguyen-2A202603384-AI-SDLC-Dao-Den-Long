@@ -1,7 +1,13 @@
 ---
 name: verify-game
-description: Run the game's verification and save evidence for the current phase (tests, headless scenarios via the real CLI for all 3 nights, determinism, timing, bot wins at dawn, screenshots incl. colour-blind mode, FPS). Use before tagging a phase or when asked to "verify", "prove", or "collect evidence".
+description: Run the game's verification and save evidence for the current phase (tests, headless scenarios via the real CLI for all 3 nights, determinism, timing, bot wins at dawn, screenshots incl. colour-blind mode, benchmark, soak, release bundle). Use before tagging a phase or when asked to "verify", "prove", or "collect evidence".
 ---
+
+Release checks (Ticket-04), run one at a time on an idle machine:
+- `node scripts/bench.js --seed 42 --duration 30 --out docs/proof/<phase>/bench.json` → avg_fps >= 60, p1_low_fps >= 30, load_ms <= 10000. Run it 2-3 times and report the range; use `BENCH_DEBUG=1` to get the 12 worst frames split into late/sync/hud/render.
+- `node --expose-gc scripts/soak.js --seed 7 --nights 10 --out docs/proof/<phase>/soak.json` → crashes 0, mem_end <= 1.2 x mem_start. Repeat 5x; a 60-night run shows whether memory really grows.
+- `npm run package`, then run `node server.js` and `node scripts/run-tests.js` INSIDE `dist/dao-den-long-v*/` (proves the bundle needs no npm install).
+- Screens: `?screen=board|save|keys&dup`, captions `?autostart&night=1&t=290&god`, `?large`, `?bench`.
 
 # Verify Đảo Đèn Lồng and save evidence
 
