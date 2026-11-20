@@ -1,4 +1,4 @@
-// Test Contract v1.0 conformance: declaration file, CLI, exit codes, output format, determinism.
+// Test Contract v1.1 conformance (v1.0 checks kept as regression): declaration file, CLI, exit codes, output format, determinism.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -22,11 +22,19 @@ const tmpFile = (name, data) => {
   return p;
 };
 
-test('C-01 game.contract.json has all fields and tuning mirrors the game', () => {
-  assert.equal(contract.contract_version, '1.0');
+test('C-01 game.contract.json v1.1: all fields, tuning mirrors the game and the Ticket-02 standard numbers', () => {
+  assert.equal(contract.contract_version, '1.1');
   for (const k of ['team', 'build_cmd', 'run_cmd', 'headless_cmd']) assert.equal(typeof contract[k], 'string', k);
   assert.deepEqual(contract.tuning, TUNING);
   assert.equal(contract.tuning.lantern_count_night1, 5);
+  // Ticket-02 Part 1 standard numbers
+  assert.deepEqual(contract.tuning, {
+    player_speed: 6, carry_capacity: 10, lantern_cost: 10, lantern_count_night1: 5, pickup_radius: 1, interact_radius: 2,
+    pulse_cost: 3, pulse_radius: 5, night1_duration_s: 300, night2_duration_s: 330, night3_duration_s: 360, flames: 3,
+    invuln_s: 1.5, hit_drop_ratio: 0.5, pulse_stun_s: 2, pulse_push_m: 4, pulse_cooldown_s: 3, safe_radius: 6, shade_speed: 4,
+    shade_hit_radius: 1, fall_enabled: true, dash_speed: 14, dash_duration_s: 0.2, dash_cooldown_s: 1.5,
+    score: { per_mote: 10, per_lantern: 100, per_stun: 5, per_second_left: 2, per_flame_left: 50 },
+  });
 });
 
 test('C-02 CLI run: exit 0, JSONL, snapshot every N from tick 0, end line last', () => {
@@ -39,6 +47,45 @@ test('C-02 CLI run: exit 0, JSONL, snapshot every N from tick 0, end line last',
   for (const s of lines.filter((l) => l.type === 'snapshot')) {
     assert.equal(s.sim_tick, s.tick);
     for (const k of ['state', 'time_left_s', 'score', 'player', 'lanterns', 'shades', 'motes_active']) assert.ok(k in s, k);
+  }
+});
+
+test('C-08 v1.1 snapshot fields: night, wind, player vel/grounded/invuln/cooldowns/charm, motes, drifters, charms', () => {
+  for (const night of [1, 2, 3]) {
+    const out = join(tmp, `n${night}.jsonl`);
+    const r = cli(['--seed', '4', '--night', String(night), '--ticks', '2500', '--out', out, '--snapshot-every', '250']);
+    assert.equal(r.status, 0, r.stderr);
+    const lines = readFileSync(out, 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+    assert.deepEqual(lines[1], { type: 'event', tick: 0, name: 'night_start', data: { night } });
+    for (const s of lines.filter((l) => l.type === 'snapshot')) {
+      assert.equal(s.night, night);
+      assert.deepEqual(Object.keys(s.wind).sort(), ['active', 'dir_deg']);
+      for (const k of ['pos', 'vel', 'grounded', 'invuln', 'dash_cd_s', 'pulse_cd_s', 'charm_s', 'flames', 'carried']) assert.ok(k in s.player, `player.${k}`);
+      assert.equal(typeof s.player.grounded, 'boolean');
+      assert.equal(typeof s.player.invuln, 'boolean');
+      for (const m of s.motes) assert.deepEqual(Object.keys(m), ['id', 'pos', 'kind', 'ttl_s']);
+      for (const d of s.drifters) {
+        assert.deepEqual(Object.keys(d), ['id', 'pos', 'state', 'stolen']);
+        assert.ok(['idle', 'chase', 'flee', 'removed'].includes(d.state));
+      }
+      for (const c of s.charms) for (const k of ['id', 'available', 'respawn_s']) assert.ok(k in c, `charm.${k}`);
+      for (const sh of s.shades) assert.ok(['spawning', 'wander', 'chase', 'recoil', 'stunned'].includes(sh.state), sh.state);
+      assert.equal(s.motes_active, s.motes.length);
+    }
+  }
+});
+
+test('C-09 a full night (21,600 ticks) runs headless in <= 30 s, every night', () => {
+  for (const night of ['1', '2', '3']) {
+    const t0 = Date.now();
+    // invuln + flames keep Mây alive so the run really lasts until dawn
+    const sc = tmpFile(`long${night}.json`, { player: { flames: 99999, invuln_ticks: 30000 }, time_left_s: 360 });
+    const r = cli(['--seed', '1', '--night', night, '--scenario', sc, '--ticks', '21600', '--out', join(tmp, `long${night}.jsonl`)]);
+    const ms = Date.now() - t0;
+    assert.equal(r.status, 0, r.stderr);
+    assert.ok(ms <= 30000, `night ${night}: ${ms} ms`);
+    const end = JSON.parse(readFileSync(join(tmp, `long${night}.jsonl`), 'utf8').trim().split('\n').at(-1));
+    assert.equal(end.ticks, 21600);
   }
 });
 
@@ -68,6 +115,12 @@ test('C-05 malformed inputs / scenario -> exit 2 with stderr message', () => {
     ['--scenario', tmpFile('bad5.json', { player: { pos: [0, 0] } })],
     ['--scenario', tmpFile('bad6.json', { lanterns: [{ id: 'L9', lit: true }] })],
     ['--scenario', join(tmp, 'missing.json')],
+    ['--inputs', tmpFile('bad8.json', { frames: [{ tick: 0, pause: 'yes' }] })],
+    ['--scenario', tmpFile('bad9.json', { shades: [{ pos: [1, 0, 1], state: 'angry' }] })],
+    ['--scenario', tmpFile('bad10.json', { drifters: [{ pos: [1, 0, 1], state: 'sleep' }] })],
+    ['--scenario', tmpFile('bad11.json', { charms: [{ pos: [1, 0] }] })],
+    ['--scenario', tmpFile('bad12.json', { player: { dash_cd_ticks: -1 } })],
+    ['--scenario', tmpFile('bad13.json', { wind_enabled: 'yes' })],
   ];
   for (const extra of bad) {
     const r = cli(['--seed', '1', '--night', '1', '--ticks', '10', '--out', join(tmp, 'x.jsonl'), ...extra]);
@@ -79,6 +132,10 @@ test('C-05 malformed inputs / scenario -> exit 2 with stderr message', () => {
 test('C-06 bad CLI arguments -> non-zero exit', () => {
   assert.notEqual(cli(['--seed', '1', '--night', '1', '--ticks', '10']).status, 0); // no --out
   assert.notEqual(cli(['--seed', 'x', '--night', '1', '--ticks', '10', '--out', join(tmp, 'y.jsonl')]).status, 0);
+  assert.notEqual(cli(['--seed', '1', '--night', '4', '--ticks', '10', '--out', join(tmp, 'y.jsonl')]).status, 0);
+  // lantern L7 exists only on Night 3
+  assert.equal(cli(['--seed', '1', '--night', '2', '--ticks', '1', '--out', join(tmp, 'y.jsonl'), '--scenario', tmpFile('l7.json', { lanterns: [{ id: 'L7', lit: true }] })]).status, 2);
+  assert.equal(cli(['--seed', '1', '--night', '3', '--ticks', '1', '--out', join(tmp, 'y.jsonl'), '--scenario', tmpFile('l7b.json', { lanterns: [{ id: 'L7', lit: true }] })]).status, 0);
 });
 
 test('C-07 no --inputs means the player stands still', () => {

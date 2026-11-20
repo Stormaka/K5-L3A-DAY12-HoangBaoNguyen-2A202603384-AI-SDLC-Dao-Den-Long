@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// Headless runner — Test Contract v1.0.
-// node src/headless.js --seed <int> --night 1 [--scenario f.json] [--inputs f.json]
+// Headless runner — Test Contract v1.1.
+// node src/headless.js --seed <int> --night 1|2|3 [--scenario f.json] [--inputs f.json]
 //                      --ticks <int> --out f.jsonl [--snapshot-every <int>]
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createWorld, step, snapshot } from './sim/world.js';
+import { createWorld, step, snapshot, BUTTONS } from './sim/world.js';
 import { parseInputs, parseScenario, FormatError } from './sim/validate.js';
 
 export class ArgError extends Error {}
@@ -36,7 +36,7 @@ export function parseArgs(argv) {
     }
   }
   for (const r of ['seed', 'night', 'ticks', 'out']) if (o[r] === undefined) throw new ArgError(`--${r} is required`);
-  if (o.night !== 1) throw new ArgError(`--night ${o.night} is not available (only night 1)`);
+  if (![1, 2, 3].includes(o.night)) throw new ArgError(`--night must be 1, 2 or 3 (got ${o.night})`);
   return o;
 }
 
@@ -55,10 +55,10 @@ function readJson(path, label) {
 }
 
 /** Pure run: returns array of output objects (snapshots, events, end). */
-export function run({ seed, ticks, snapshotEvery = 10, scenario = {}, frames = new Map() }) {
-  const w = createWorld(seed, scenario);
-  const lines = [snapshot(w)];
-  const cur = { move: [0, 0], cam_yaw_deg: 0, jump: false, interact: false, pulse: false, dash: false };
+export function run({ seed, night = 1, ticks, snapshotEvery = 10, scenario = {}, frames = new Map() }) {
+  const w = createWorld(seed, scenario, night);
+  const lines = [snapshot(w), { type: 'event', tick: 0, name: 'night_start', data: { night } }];
+  const cur = { move: [0, 0], cam_yaw_deg: 0, ...Object.fromEntries(BUTTONS.map((b) => [b, false])) };
   for (let k = 0; k < ticks && w.state === 'playing'; k++) {
     const f = frames.get(k);
     if (f) Object.assign(cur, f);
@@ -76,7 +76,7 @@ export function main(argv) {
     const o = parseArgs(argv);
     const scenario = o.scenario ? parseScenario(readJson(o.scenario, 'scenario')) : {};
     const frames = o.inputs ? parseInputs(readJson(o.inputs, 'inputs')) : new Map();
-    const lines = run({ seed: o.seed, ticks: o.ticks, snapshotEvery: o.snapshotEvery, scenario, frames });
+    const lines = run({ seed: o.seed, night: o.night, ticks: o.ticks, snapshotEvery: o.snapshotEvery, scenario, frames });
     const out = resolve(o.out);
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, lines.map((l) => JSON.stringify(l)).join('\n') + '\n');

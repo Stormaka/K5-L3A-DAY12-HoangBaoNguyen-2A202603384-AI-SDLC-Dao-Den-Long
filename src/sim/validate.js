@@ -14,7 +14,13 @@ function vec3(v, where) {
   return [v[0], v[1], v[2]];
 }
 
-const BUTTONS = ['jump', 'interact', 'pulse', 'dash'];
+const BUTTONS = ['jump', 'interact', 'pulse', 'dash', 'pause'];
+const SHADE_STATES = ['spawning', 'wander', 'chase', 'recoil', 'stunned'];
+const DRIFTER_STATES = ['idle', 'chase', 'flee', 'removed'];
+const intGe0 = (v, where) => {
+  if (!isInt(v) || v < 0) fail(`${where}: expected integer >= 0`);
+  return v;
+};
 
 /** Returns Map<tick, frame> with only the fields present in each frame. */
 export function parseInputs(raw) {
@@ -63,8 +69,10 @@ export function parseScenario(raw) {
       if (!isInt(p.flames) || p.flames < 0) fail('scenario.player.flames: expected integer >= 0');
       s.player.flames = p.flames;
     }
+    for (const k of ['invuln_ticks', 'dash_cd_ticks', 'pulse_cd_ticks', 'charm_ticks'])
+      if (k in p) s.player[k] = intGe0(p[k], `scenario.player.${k}`);
   }
-  for (const k of ['random_motes', 'random_shades']) {
+  for (const k of ['random_motes', 'random_shades', 'random_drifters', 'wind_enabled']) {
     if (k in raw) {
       if (typeof raw[k] !== 'boolean') fail(`scenario.${k}: expected boolean`);
       s[k] = raw[k];
@@ -72,7 +80,18 @@ export function parseScenario(raw) {
   }
   if ('motes' in raw) {
     if (!Array.isArray(raw.motes)) fail('scenario.motes: expected array');
-    s.motes = raw.motes.map((m, i) => vec3(m, `scenario.motes[${i}]`));
+    s.motes = raw.motes.map((m, i) => {
+      const where = `scenario.motes[${i}]`;
+      if (Array.isArray(m)) return { pos: vec3(m, where) };
+      if (!isObj(m)) fail(`${where}: expected [x, y, z] or {pos, kind?, ttl_ticks?}`);
+      const o = { pos: vec3(m.pos, `${where}.pos`) };
+      if ('kind' in m) {
+        if (m.kind !== 'random' && m.kind !== 'dropped') fail(`${where}.kind: expected "random" or "dropped"`);
+        o.kind = m.kind;
+      }
+      if ('ttl_ticks' in m) o.ttl_ticks = intGe0(m.ttl_ticks, `${where}.ttl_ticks`);
+      return o;
+    });
   }
   if ('shades' in raw) {
     if (!Array.isArray(raw.shades)) fail('scenario.shades: expected array');
@@ -86,6 +105,52 @@ export function parseScenario(raw) {
         seen.add(sh.id);
         o.id = sh.id;
       }
+      if ('state' in sh) {
+        if (!SHADE_STATES.includes(sh.state)) fail(`scenario.shades[${i}].state: expected one of ${SHADE_STATES.join(', ')}`);
+        o.state = sh.state;
+      }
+      if ('state_ticks_left' in sh) o.state_ticks_left = intGe0(sh.state_ticks_left, `scenario.shades[${i}].state_ticks_left`);
+      return o;
+    });
+  }
+  if ('drifters' in raw) {
+    if (!Array.isArray(raw.drifters)) fail('scenario.drifters: expected array');
+    const seen = new Set();
+    s.drifters = raw.drifters.map((d, i) => {
+      const where = `scenario.drifters[${i}]`;
+      if (!isObj(d)) fail(`${where}: expected object`);
+      const o = { pos: vec3(d.pos, `${where}.pos`) };
+      if ('id' in d) {
+        if (typeof d.id !== 'string' || !d.id || seen.has(d.id)) fail(`${where}.id: expected unique non-empty string`);
+        seen.add(d.id);
+        o.id = d.id;
+      }
+      if ('state' in d) {
+        if (!DRIFTER_STATES.includes(d.state)) fail(`${where}.state: expected one of ${DRIFTER_STATES.join(', ')}`);
+        o.state = d.state;
+      }
+      if ('stolen' in d) o.stolen = intGe0(d.stolen, `${where}.stolen`);
+      if ('state_ticks_left' in d) o.state_ticks_left = intGe0(d.state_ticks_left, `${where}.state_ticks_left`);
+      return o;
+    });
+  }
+  if ('charms' in raw) {
+    if (!Array.isArray(raw.charms)) fail('scenario.charms: expected array');
+    const seen = new Set();
+    s.charms = raw.charms.map((c, i) => {
+      const where = `scenario.charms[${i}]`;
+      if (!isObj(c)) fail(`${where}: expected object`);
+      const o = { pos: vec3(c.pos, `${where}.pos`) };
+      if ('id' in c) {
+        if (typeof c.id !== 'string' || !c.id || seen.has(c.id)) fail(`${where}.id: expected unique non-empty string`);
+        seen.add(c.id);
+        o.id = c.id;
+      }
+      if ('available' in c) {
+        if (typeof c.available !== 'boolean') fail(`${where}.available: expected boolean`);
+        o.available = c.available;
+      }
+      if ('respawn_ticks' in c) o.respawn_ticks = intGe0(c.respawn_ticks, `${where}.respawn_ticks`);
       return o;
     });
   }
