@@ -19,3 +19,5 @@
 **Cập nhật (20/11/2026, 6:39 UTC):** GitHub Support xác nhận nguyên nhân là một mã giảm giá GitHub Education đã hết hạn, và đã gỡ khóa billing. Actions chạy lại được trên gói Free. CI sẽ được kiểm chứng lại ở lần push tiếp theo. Vẫn giữ pre-push hook làm lớp chặn thứ hai.
 
 **Cập nhật 2:** Sau khi gỡ khóa, CI chạy được nhưng đỏ ở bước `npm test` (run 44690214800, Node 20). Nguyên nhân là lỗi của bài, không phải của GitHub: script test dùng `node --test "tests/*.test.js"`, mà Node 20 không tự mở rộng dấu `*` (Node 21 trở lên mới hỗ trợ). Máy dev chạy Node 24 nên không thấy lỗi. Đã sửa bằng `scripts/run-tests.js` (tự liệt kê file test), và CI giờ chạy trên Node 20, 22 và 24.
+
+**Cập nhật 3:** CI xanh trên cả Node 20, 22 và 24 (run 44691280170, commit `9a31de2`: `npm ci`, `npm test`, `npm run proof`).

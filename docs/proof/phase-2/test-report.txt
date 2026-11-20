@@ -1,0 +1,65 @@
+
+> dao-den-long@0.2.0 test
+> node scripts/run-tests.js
+
+✔ C-01 game.contract.json v1.1: all fields, tuning mirrors the game and the Ticket-02 standard numbers (1.5117ms)
+✔ C-02 CLI run: exit 0, JSONL, snapshot every N from tick 0, end line last (137.7151ms)
+✔ C-08 v1.1 snapshot fields: night, wind, player vel/grounded/invuln/cooldowns/charm, motes, drifters, charms (447.9142ms)
+✔ C-09 a full night (21,600 ticks) runs headless in <= 30 s, every night (1122.7496ms)
+✔ C-03 coordinates rounded to 3 decimals (8.0004ms)
+✔ C-04 determinism: same seed + inputs -> byte-identical output; other seed differs (427.2702ms)
+✔ C-05 malformed inputs / scenario -> exit 2 with stderr message (1404.0058ms)
+✔ C-06 bad CLI arguments -> non-zero exit (603.1718ms)
+✔ C-07 no --inputs means the player stands still (4.7491ms)
+✔ AC-01 tick 0 snapshot: player at origin, standard Night 1 map, full time, playing (5.1988ms)
+✔ AC-02 movement: 60 ticks of move [0,1] = player_speed metres along +Z (2.7376ms)
+✔ AC-03 movement is camera-relative (cam_yaw_deg 90 -> +X) and normalised (1.5843ms)
+✔ AC-04 T2: walking off the island falls (Y < -10): -1 flame, lose motes, respawn after 60 ticks (4.536ms)
+✔ AC-05 jump: leaves the ground then lands (3.6095ms)
+✔ AC-06 pickup within pickup_radius (boundary inclusive); T2: no score on pickup (1.7548ms)
+✔ AC-07 carry_capacity caps pickup (0.3988ms)
+✔ AC-08 deposit at exactly interact_radius lights a lantern; edge-triggered interact (0.6464ms)
+✔ AC-09 partial deposits accumulate (lantern remembers progress) (0.326ms)
+✔ AC-10 interact out of interact_radius does nothing (0.2798ms)
+✔ AC-11 win: lighting the last lantern -> game_over won/all_lit, score bonus, run stops (0.2968ms)
+✔ AC-12 shade chases at shade_speed (1.122ms)
+✔ AC-13 shade contact: -1 flame, drops floor(carried/2), invuln_s; no flames -> lost (2.9549ms)
+✔ AC-14 pulse: costs pulse_cost, stuns + pushes shades in pulse_radius (3D), +per_stun (2.8433ms)
+✔ AC-15 pulse needs pulse_cost light and respects pulse_cooldown_s (1.0985ms)
+✔ AC-16 shades never enter safe_radius of a lit lantern; player is safe there (16.745ms)
+✔ AC-17 dawn: time runs out -> lost/dawn (1.0588ms)
+✔ AC-18 T2: shade schedule: 2 at tick 300, then 1 every 8 s (480 ticks), max 6, >= 15 m from Mây (36.6148ms)
+✔ AC-19 building a scenario emits no gameplay events and gives no score (0.3652ms)
+✔ P2-01 standard maps: Night 2 and 3 lanterns, durations, start, 20 motes on distinct spawn points (7.3448ms)
+✔ P2-02 mote schedule: +1 at ticks 240, 480, ... on a free point; skip when no free point (11.6706ms)
+✔ P2-03 jump: v 7 m/s, g 20 -> apex ~1.2 m; only from the ground (no double jump) (2.6694ms)
+✔ P2-04 dash: 14 m/s for 0.2 s (12 ticks) along facing when idle, cooldown 1.5 s from dash start (1.4638ms)
+✔ P2-05 dash follows the movement direction; in the air it keeps altitude (0.6637ms)
+✔ P2-06 pickup needs XZ <= 1.0 m AND height difference <= 1.5 m (0.6797ms)
+✔ P2-07 interact picks the nearest unlit lantern, ties -> lower id (0.9117ms)
+✔ P2-08 lighting a lantern pushes shades inside to the 6 m edge within 30 ticks, no damage meanwhile (4.5299ms)
+✔ P2-09 pulse refreshes stun on a stunned shade and still scores +5; push stops at obstacles; overlap pushes +X (2.7339ms)
+✔ P2-10 pulse is 3D from feet + 0.8 m (shade 5.0 m above the centre is hit, 5.1 m is not) (0.8069ms)
+✔ P2-11 shade detection 12 m / give up 18 m; Night 3 shades run 4.5 m/s (1.3292ms)
+✔ P2-12 hit: the hitting shade recoils 2 m over 60 ticks; a second shade touching while invulnerable does nothing (2.1029ms)
+✔ P2-13 dropped motes expire after their TTL (0.3624ms)
+✔ P2-14 falling ignores invulnerability; with the last flame it is game over at once (no respawn) (0.7034ms)
+✔ P2-15 win/lose order: all lit on the dawn tick wins; losing the last flame on the dawn tick loses (no_flames) (0.8107ms)
+✔ P2-16 pause: tick advances but sim_tick, time, cooldowns and movement freeze; paused/resumed events (0.4594ms)
+✔ P2-17 Night 2 launch pad flings Mây to island B; move keys cannot steer the flight (0.9923ms)
+✔ P2-18 Night 3 terrain: tier walls block, ramps climb to tier 1, pad reaches tier 2, tower is solid (6.2538ms)
+✔ P2-19 Night 3 wind: every 30 s a 5 s gust pushes Mây 2 m/s; announced 2 s before; off when disabled (36.9986ms)
+✔ P2-20 drifter: idle -> chase when Mây carries >= 5 within 15 m; steals min(3, carried) even when invulnerable, flees 240 ticks then removed (6.5318ms)
+✔ P2-21 pulse on a chasing drifter -> flee without stealing; on a fleeing one with loot -> drops it (drifter_drop), gone after 120 ticks (3.8813ms)
+✔ P2-22 drifters spawn at ticks 1200, 2400, ... (max 2 alive, ids D1, D2) on Nights 2-3 only (22.0153ms)
+✔ P2-23 charm: pick up -> 600 ticks of 7.2 m/s and dash without cooldown; respawns 2700 ticks later (22.2888ms)
+✔ P2-24 charm expires after 600 ticks: speed back to 6 m/s (0.9706ms)
+✔ P2-25 every night is deterministic and ends within its duration (243.7446ms)
+ℹ tests 53
+ℹ suites 0
+ℹ pass 53
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4358.9468
