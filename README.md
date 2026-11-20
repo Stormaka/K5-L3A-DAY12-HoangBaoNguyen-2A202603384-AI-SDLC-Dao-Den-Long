@@ -59,3 +59,7 @@ node src/headless.js --seed 1 --night 1 --ticks 600 --out out/run.jsonl \
 - Giả định, tiêu chí nghiệm thu, nhật ký AI, đánh giá: [docs/notes/phase-1.md](docs/notes/phase-1.md)
 - Bằng chứng: [docs/proof/phase-1/README.md](docs/proof/phase-1/README.md)
 - Harness AI: [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), [.claude/settings.json](.claude/settings.json) (hooks), [.claude/skills/verify-game](.claude/skills/verify-game/SKILL.md), CI [.github/workflows/ci.yml](.github/workflows/ci.yml)
+
+## Đề bài lab
+
+Tài liệu đề bài gốc của giảng viên (README, GUIDE, CHECKPOINTS, SUBMISSION, RULES, RUBRIC) được giữ trong [docs/lab/](docs/lab/).
