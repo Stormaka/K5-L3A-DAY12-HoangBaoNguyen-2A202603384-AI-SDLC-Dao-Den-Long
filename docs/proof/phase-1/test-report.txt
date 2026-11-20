@@ -1,0 +1,38 @@
+
+> dao-den-long@0.1.0 test
+> node --test "tests/*.test.js"
+
+✔ C-01 game.contract.json has all fields and tuning mirrors the game (4.2259ms)
+✔ C-02 CLI run: exit 0, JSONL, snapshot every N from tick 0, end line last (96.8636ms)
+✔ C-03 coordinates rounded to 3 decimals (7.0788ms)
+✔ C-04 determinism: same seed + inputs -> byte-identical output; other seed differs (292.9451ms)
+✔ C-05 malformed inputs / scenario -> exit 2 with stderr message (549.3337ms)
+✔ C-06 bad CLI arguments -> non-zero exit (138.9195ms)
+✔ C-07 no --inputs means the player stands still (3.4584ms)
+✔ AC-01 tick 0 snapshot: player at origin, 5 lanterns, full time, playing (3.7998ms)
+✔ AC-02 movement: 60 ticks of move [0,1] = player_speed metres along +Z (3.1148ms)
+✔ AC-03 movement is camera-relative (cam_yaw_deg 90 -> +X) and normalised (1.0676ms)
+✔ AC-04 island edge is a wall (fall_enabled=false): no fall, stays on island (4.4118ms)
+✔ AC-05 jump: leaves the ground then lands (1.5703ms)
+✔ AC-06 pickup within pickup_radius (boundary inclusive), +per_mote score (1.0831ms)
+✔ AC-07 carry_capacity caps pickup (0.4411ms)
+✔ AC-08 deposit lights a lantern at lantern_cost; edge-triggered interact (0.721ms)
+✔ AC-09 partial deposits accumulate (0.4448ms)
+✔ AC-10 interact out of interact_radius does nothing (0.3877ms)
+✔ AC-11 win: lighting the last lantern -> game_over won/all_lit, score bonus, run stops (0.4908ms)
+✔ AC-12 shade chases at shade_speed (0.7953ms)
+✔ AC-13 shade contact: -1 flame, drops hit_drop_ratio of carried, then invuln_s (2.1777ms)
+✔ AC-14 pulse: costs pulse_cost, stuns + pushes shades in pulse_radius, +per_stun (1.0029ms)
+✔ AC-15 pulse needs light and respects pulse_cooldown_s (0.6121ms)
+✔ AC-16 shades never enter safe_radius of a lit lantern; player is safe there (8.3656ms)
+✔ AC-17 dawn: time runs out -> lost/dawn (0.6609ms)
+✔ AC-18 random shades spawn over time with shade_spawned events and unique ids (18.0025ms)
+✔ AC-19 building a scenario emits no events and gives no score (0.4082ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1229.5579
