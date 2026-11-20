@@ -15,3 +15,5 @@
 | Hook PostToolUse (`scripts/hooks/post-edit.js`) | Sau mỗi lần agent sửa `src/`, `tests/` | Báo ngay cho agent khi test hỏng |
 
 Đã thử cả hai trường hợp: thêm một test luôn sai thì pre-push thoát với mã 1 (chặn); xóa test đó thì thoát với mã 0.
+
+**Cập nhật (20/11/2026, 6:39 UTC):** GitHub Support xác nhận nguyên nhân là một mã giảm giá GitHub Education đã hết hạn, và đã gỡ khóa billing. Actions chạy lại được trên gói Free. CI sẽ được kiểm chứng lại ở lần push tiếp theo. Vẫn giữ pre-push hook làm lớp chặn thứ hai.
