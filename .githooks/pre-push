@@ -1,0 +1,10 @@
+#!/bin/sh
+# Local stand-in for CI: block `git push` while the test suite is red.
+# Enabled automatically by `npm install` (package.json "prepare": git config core.hooksPath .githooks).
+echo "[pre-push] npm test ..."
+if ! npm test --silent >/tmp/ddl-prepush.log 2>&1; then
+  grep -E "^✖|AssertionError" /tmp/ddl-prepush.log | head -15
+  echo "[pre-push] Tests are RED — push blocked. Fix the code, do not weaken tests." >&2
+  exit 1
+fi
+echo "[pre-push] tests green"

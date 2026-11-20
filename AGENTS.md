@@ -18,4 +18,4 @@
 - Write/adjust the test FIRST, then code. Never weaken a test to make it pass; if a new ticket invalidates a test, change it and write why in the notes.
 - Events in step k carry tick k+1. Coordinates rounded to 3 decimals only at output.
 - Do not commit `.env`, keys, `node_modules/`.
-- "Done" = `npm test` green + `npm run proof` PASS (a Stop hook enforces tests).
+- "Done" = `npm test` green + `npm run proof` PASS (Stop hook + git pre-push hook enforce tests; CI blocked by GitHub billing, see docs/notes/ci-status.md).
