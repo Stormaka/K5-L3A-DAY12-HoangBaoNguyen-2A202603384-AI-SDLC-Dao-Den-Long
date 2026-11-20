@@ -687,6 +687,14 @@ function moveShade(w, s) {
     }
   } else if (s.state === 'wander') {
     // Ticket-03: head for the nearest weak lantern (lit, fuel < 30), else the nearest unlit lantern (A3-04)
+    // A4-14: in the benchmark scene shades roam between island points so all 200 keep moving for the
+    // whole measurement (Ticket-04: "vẫn di chuyển"); lantern-seeking would park them at L4/L5 in ~20 s.
+    if (w.bench) {
+      wanderStep(w, s, W.shade_wander_speed, ok);
+      clampSafe(w, s);
+      followGround(w, s, s.hover);
+      return;
+    }
     const weak = nearestLantern(w, s, (l) => l.lit && l.fuel < LOW_FUEL_U);
     const tgt = weak || nearestLantern(w, s, (l) => !l.lit);
     s.target = tgt;

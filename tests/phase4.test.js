@@ -103,7 +103,12 @@ test('P4-05 bench scene: Night 1, exactly 200 wandering shades + 100 motes sprea
   assert.equal(w.events.filter((e) => ['shade_spawned', 'player_hit', 'mote_picked', 'lantern_out', 'game_over'].includes(e.name)).length, 0);
   assert.ok(w.lanterns.slice(0, 3).every((l) => l.lit && l.fuel === 6000));
   assert.ok(w.shades.every((s) => s.state === 'wander'));
-  assert.notEqual(w.shades.map((s) => [s.x, s.z]).join(), pos0); // shades keep moving
+  assert.notEqual(w.shades.map((s) => [s.x, s.z]).join(), pos0);
+  // A4-14: shades keep moving for the whole run, not parked at unlit lanterns (audit finding)
+  const before = w.shades.map((s) => [s.x, s.z]);
+  for (let i = 0; i < 60; i++) step(w, { move: [0, 0] });
+  const moving = w.shades.filter((s, i) => Math.hypot(s.x - before[i][0], s.z - before[i][1]) > 0.5).length;
+  assert.ok(moving >= 180, `only ${moving}/200 shades moved in the last second after 300 s`);
   // same seed -> same scene
   assert.equal(JSON.stringify(createBenchWorld(42).shades.map((s) => [s.x, s.z])), JSON.stringify(createBenchWorld(42).shades.map((s) => [s.x, s.z])));
 });

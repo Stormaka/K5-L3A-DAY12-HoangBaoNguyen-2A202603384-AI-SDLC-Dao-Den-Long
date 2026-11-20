@@ -25,6 +25,8 @@ const fail = (msg) => {
   process.exit(1);
 };
 if (!Number.isInteger(seed) || !(duration > 0)) fail('usage: node scripts/bench.js --seed <int> --duration <s> --out <file>');
+// The DevTools connection uses Node's built-in WebSocket (Node >= 22). The game itself only needs Node >= 18.
+if (typeof WebSocket === 'undefined') fail(`the benchmark needs Node >= 22 (built-in WebSocket); this is Node ${process.version}`);
 
 function findChrome() {
   const cand = [arg('--chrome'), process.env.CHROME];

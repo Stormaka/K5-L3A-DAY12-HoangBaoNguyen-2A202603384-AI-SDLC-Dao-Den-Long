@@ -1,0 +1,4 @@
+# Keep evidence and hooks byte-exact on every OS (audit: CRLF checkout changed .jsonl bytes on Windows)
+*.jsonl -text
+.githooks/* text eol=lf
+*.sh text eol=lf
