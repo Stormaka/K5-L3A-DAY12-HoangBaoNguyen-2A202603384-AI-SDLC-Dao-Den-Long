@@ -1,4 +1,4 @@
-// Single source of truth for gameplay numbers (Ticket-02 standard numbers, Test Contract v1.1).
+// Single source of truth for gameplay numbers (Ticket-02 standard numbers + Ticket-03 change request, Test Contract v1.2).
 // game.contract.json "tuning" MUST mirror TUNING (enforced by tests/contract.test.js C-01).
 
 export const TICK_RATE = 60;
@@ -13,9 +13,9 @@ export const TUNING = {
   interact_radius: 2,
   pulse_cost: 3,
   pulse_radius: 5,
-  night1_duration_s: 300,
-  night2_duration_s: 330,
-  night3_duration_s: 360,
+  night1_duration_s: 240,
+  night2_duration_s: 270,
+  night3_duration_s: 300,
   flames: 3,
   invuln_s: 1.5,
   hit_drop_ratio: 0.5,
@@ -29,12 +29,20 @@ export const TUNING = {
   dash_speed: 14,
   dash_duration_s: 0.2,
   dash_cooldown_s: 1.5,
+  fuel_max: 100,
+  fuel_decay_per_s: 1.0,
+  fuel_per_mote: 10,
+  relight_cost: 5,
+  win_ratio: 0.6,
+  drain_per_s: 5,
+  low_fuel_threshold: 30,
+  capacity_max: 20,
   score: {
-    per_mote: 10, // per mote DEPOSITED into a lantern (Ticket-02)
-    per_lantern: 100,
-    per_stun: 5, // per shade hit by a pulse (each shade, each pulse)
-    per_second_left: 2,
-    per_flame_left: 50,
+    per_mote: 5, // per mote put into a lantern: light, relight or refuel (Ticket-03)
+    per_lantern: 100, // first light
+    per_stun: 5, // per shade hit by a pulse (15 if it was draining: WORLD.score_stun_drain)
+    per_second_left: 0, // Ticket-03: time bonus removed
+    per_flame_left: 50, // at dawn, only when won
   },
 };
 
@@ -88,4 +96,19 @@ export const WORLD = {
   wind_warn_ticks: 120,
   wind_speed: 2,
   pad_radius: 1,
+  // Ticket-03
+  capacity_per_light: 2, // capacity = carry_capacity + 2 x successful_lights, max capacity_max
+  drain_reach: 2, // a wandering shade starts draining within 2 m (XZ) of a weak lantern
+  drain_break: 6, // a draining shade chases Mây when she comes within 6 m
+  fuel_drain_event_ticks: 60,
+  score_relight: 40,
+  score_stun_drain: 15,
+  score_lit_at_dawn: 50, // + floor(fuel) per lit lantern at dawn, only when won
 };
+// Fuel is kept in integer units of 1/60 (one tick of decay) to avoid float drift (Ticket-03 §1).
+export const FUEL_UNIT = TICK_RATE;
+export const FUEL_MAX_U = TUNING.fuel_max * FUEL_UNIT; // 6000
+export const LOW_FUEL_U = TUNING.low_fuel_threshold * FUEL_UNIT; // 1800
+export const DECAY_U = Math.round((TUNING.fuel_decay_per_s * FUEL_UNIT) / TICK_RATE); // 1 per tick
+export const DRAIN_U = Math.round((TUNING.drain_per_s * FUEL_UNIT) / TICK_RATE); // 5 per tick per shade
+export const MOTE_FUEL_U = TUNING.fuel_per_mote * FUEL_UNIT; // 600

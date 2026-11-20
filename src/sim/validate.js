@@ -15,7 +15,7 @@ function vec3(v, where) {
 }
 
 const BUTTONS = ['jump', 'interact', 'pulse', 'dash', 'pause'];
-const SHADE_STATES = ['spawning', 'wander', 'chase', 'recoil', 'stunned'];
+const SHADE_STATES = ['spawning', 'wander', 'chase', 'recoil', 'stunned', 'drain'];
 const DRIFTER_STATES = ['idle', 'chase', 'flee', 'removed'];
 const intGe0 = (v, where) => {
   if (!isInt(v) || v < 0) fail(`${where}: expected integer >= 0`);
@@ -69,7 +69,7 @@ export function parseScenario(raw) {
       if (!isInt(p.flames) || p.flames < 0) fail('scenario.player.flames: expected integer >= 0');
       s.player.flames = p.flames;
     }
-    for (const k of ['invuln_ticks', 'dash_cd_ticks', 'pulse_cd_ticks', 'charm_ticks'])
+    for (const k of ['invuln_ticks', 'dash_cd_ticks', 'pulse_cd_ticks', 'charm_ticks', 'successful_lights'])
       if (k in p) s.player[k] = intGe0(p[k], `scenario.player.${k}`);
   }
   for (const k of ['random_motes', 'random_shades', 'random_drifters', 'wind_enabled']) {
@@ -110,6 +110,10 @@ export function parseScenario(raw) {
         o.state = sh.state;
       }
       if ('state_ticks_left' in sh) o.state_ticks_left = intGe0(sh.state_ticks_left, `scenario.shades[${i}].state_ticks_left`);
+      if ('target_lantern_id' in sh) {
+        if (typeof sh.target_lantern_id !== 'string') fail(`scenario.shades[${i}].target_lantern_id: expected string`);
+        o.target_lantern_id = sh.target_lantern_id;
+      }
       return o;
     });
   }
@@ -165,6 +169,14 @@ export function parseScenario(raw) {
       if ('lit' in l) {
         if (typeof l.lit !== 'boolean') fail(`${where}.lit: expected boolean`);
         o.lit = l.lit;
+      }
+      if ('fuel' in l) {
+        if (!isNum(l.fuel) || l.fuel < 0 || l.fuel > 100) fail(`${where}.fuel: expected number 0..100`);
+        o.fuel = l.fuel;
+      }
+      if ('ever_lit' in l) {
+        if (typeof l.ever_lit !== 'boolean') fail(`${where}.ever_lit: expected boolean`);
+        o.ever_lit = l.ever_lit;
       }
       if ('deposited' in l) {
         if (!isInt(l.deposited) || l.deposited < 0) fail(`${where}.deposited: expected integer >= 0`);

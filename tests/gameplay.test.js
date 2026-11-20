@@ -1,13 +1,13 @@
 // Phase 1 acceptance tests (PRD-0), re-based on Ticket-02 standard numbers (Phase 2 regression).
 // IDs map to docs/proof/phase-1/README.md. Tests changed by Ticket-02 say "T2:" and why
-// (see docs/notes/phase-2.md §4). Expected numbers are computed by hand in the comments.
+// (see docs/notes/phase-2.md §4). Tests changed by Ticket-03 say "T3:" (docs/notes/phase-3.md §4). Expected numbers are computed by hand in the comments.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { sim, iso } from './helpers.js';
 import { TUNING as T } from '../src/sim/config.js';
 
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[2] - b[2]);
-const PLAYER0 = { pos: [0, 0, 0], vel: [0, 0, 0], grounded: true, invuln: false, dash_cd_s: 0, pulse_cd_s: 0, charm_s: 0, flames: 3, carried: 0 };
+const PLAYER0 = { pos: [0, 0, 0], vel: [0, 0, 0], grounded: true, invuln: false, dash_cd_s: 0, pulse_cd_s: 0, charm_s: 0, flames: 3, carried: 0, capacity: 10 }; // T3: + capacity
 
 test('AC-01 tick 0 snapshot: player at origin, standard Night 1 map, full time, playing', () => {
   const r = sim({ ticks: 0 });
@@ -88,9 +88,9 @@ test('AC-08 deposit at exactly interact_radius lights a lantern; edge-triggered 
   const dep = r.events('deposit');
   assert.equal(dep.length, 1);
   assert.deepEqual(dep[0].data, { lantern_id: 'L1', amount: T.lantern_cost, deposited: T.lantern_cost });
-  assert.deepEqual(r.events('lantern_lit').map((e) => e.data), [{ lantern_id: 'L1' }]);
   assert.equal(r.snap(1).player.carried, 2);
-  assert.equal(r.snap(1).score, 10 * T.score.per_mote + T.score.per_lantern); // 200
+  assert.equal(r.snap(1).score, 10 * T.score.per_mote + T.score.per_lantern); // T3: 10 x 5 + 100 = 150
+  assert.deepEqual(r.events('lantern_lit')[0].data, { lantern_id: 'L1', relight: false }); // T3: + relight
 });
 
 test('AC-09 partial deposits accumulate (lantern remembers progress)', () => {
@@ -101,7 +101,7 @@ test('AC-09 partial deposits accumulate (lantern remembers progress)', () => {
   });
   assert.deepEqual(r.events('deposit')[0].data, { lantern_id: 'L1', amount: 3, deposited: 4 });
   assert.equal(r.events('lantern_lit').length, 0);
-  assert.equal(r.end.score, 30);
+  assert.equal(r.end.score, 15); // T3: +5 per mote
 });
 
 test('AC-10 interact out of interact_radius does nothing', () => {
@@ -113,18 +113,18 @@ test('AC-10 interact out of interact_radius does nothing', () => {
   assert.equal(r.events('deposit').length, 0);
 });
 
-test('AC-11 win: lighting the last lantern -> game_over won/all_lit, score bonus, run stops', () => {
+test('AC-11 T3: lighting the last lantern no longer ends the night (no early win); preset lanterns give no score', () => {
+  // T3: Ticket-03 replaces "win as soon as all lanterns are lit" with "survive until dawn" (see P3-08)
   const lit = ['L1', 'L2', 'L3', 'L4'].map((id) => ({ id, lit: true }));
   const r = sim({
     scenario: iso({ player: { pos: [0, 0, 0], carried: 10 }, lanterns: [...lit, { id: 'L5', pos: [0, 0, 1] }] }),
     ticks: 100,
     frames: [{ tick: 0, interact: true }],
   });
-  const go = r.events('game_over');
-  assert.deepEqual(go.map((e) => [e.tick, e.data]), [[1, { result: 'won', reason: 'all_lit' }]]);
-  // preset lit lanterns give no score; 10 motes + L5 + floor(299.98) * 2 + 3 flames * 50 = 948
-  const expected = 10 * T.score.per_mote + T.score.per_lantern + 299 * T.score.per_second_left + 3 * T.score.per_flame_left;
-  assert.deepEqual(r.end, { type: 'end', ticks: 1, state: 'won', score: expected });
+  assert.equal(r.events('lantern_lit').length, 1);
+  assert.equal(r.snap(1).lanterns.filter((l) => l.lit).length, 5);
+  assert.equal(r.events('game_over').length, 0);
+  assert.deepEqual(r.end, { type: 'end', ticks: 100, state: 'playing', score: 10 * T.score.per_mote + T.score.per_lantern });
 });
 
 test('AC-12 shade chases at shade_speed', () => {
@@ -218,5 +218,5 @@ test('AC-19 building a scenario emits no gameplay events and gives no score', ()
   const r = sim({ scenario: iso({ lanterns: [{ id: 'L1', lit: true }, { id: 'L2', deposited: 9 }] }), ticks: 0 });
   assert.equal(r.events().length, 0); // only night_start (tick 0) is written
   assert.equal(r.end.score, 0);
-  assert.deepEqual(r.snap(0).lanterns.slice(0, 2).map((l) => [l.lit, l.deposited]), [[true, 10], [false, 9]]);
+  assert.deepEqual(r.snap(0).lanterns.slice(0, 2).map((l) => [l.lit, l.deposited, l.fuel, l.ever_lit]), [[true, 10, 100, true], [false, 9, 0, false]]); // T3: + fuel, ever_lit
 });

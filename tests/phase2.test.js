@@ -186,11 +186,13 @@ test('P2-14 falling ignores invulnerability; with the last flame it is game over
 
 // ---------------------------------------------------------------- win / lose order
 
-test('P2-15 win/lose order: all lit on the dawn tick wins; losing the last flame on the dawn tick loses (no_flames)', () => {
-  const lit = ['L1', 'L2', 'L3', 'L4'].map((id) => ({ id, lit: true }));
+test('P2-15 T3: win/lose order: enough lanterns lit on the dawn tick wins (dawn_survived); losing the last flame on the dawn tick loses (no_flames)', () => {
+  // T3: reason all_lit no longer exists; the win is checked at dawn (Ticket-03 §3)
+  const lit = ['L1', 'L2'].map((id) => ({ id, lit: true }));
   const win = sim({ scenario: iso({ time_left_s: 1 / 60, player: { carried: 10 }, lanterns: [...lit, { id: 'L5', pos: [0, 0, 1] }] }), ticks: 5, frames: [{ tick: 0, interact: true }] });
-  assert.deepEqual(win.events('game_over').map((e) => e.data), [{ result: 'won', reason: 'all_lit' }]);
-  assert.equal(win.end.score, 100 + 100 + 0 + 150);
+  assert.deepEqual(win.events('game_over').map((e) => e.data), [{ result: 'won', reason: 'dawn_survived' }]);
+  // 10 x 5 + 100 (L5) + 3 lit x (50 + floor(fuel)) + 3 flames x 50; L1/L2 burned 1 tick -> floor(99.98) = 99, L5 lit this tick -> 100
+  assert.equal(win.end.score, 50 + 100 + (50 + 99) * 2 + (50 + 100) + 150);
   const lose = sim({ scenario: iso({ time_left_s: 0.25, player: { flames: 1 }, shades: [{ pos: [2, 0, 0] }] }), ticks: 30 });
   assert.deepEqual(lose.events('game_over').map((e) => [e.tick, e.data]), [[15, { result: 'lost', reason: 'no_flames' }]]);
 });
@@ -214,7 +216,7 @@ test('P2-16 pause: tick advances but sim_tick, time, cooldowns and movement free
   assert.equal(after.state, 'playing');
   assert.equal(after.sim_tick, 20);
   assert.deepEqual(after.player.pos, [0, 0, 2]);
-  assert.equal(after.time_left_s, 299.667);
+  assert.equal(after.time_left_s, 239.667); // T3: Night 1 is 240 s
 });
 
 // ---------------------------------------------------------------- launch pads + terrain

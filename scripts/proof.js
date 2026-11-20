@@ -1,12 +1,12 @@
 // Runs headless scenarios through the REAL CLI (headless_cmd from game.contract.json),
 // checks expectations, checks determinism (2 runs, byte-identical), times them, and writes
-// evidence to docs/proof/<phase>/.   Usage: npm run proof [-- phase-2]
+// evidence to docs/proof/<phase>/.   Usage: node scripts/proof.js [phase-3]
 import { spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import os from 'node:os';
 
-const phase = process.argv[2] || 'phase-2';
+const phase = process.argv[2] || 'phase-3';
 const dir = `docs/proof/${phase}`;
 mkdirSync(`${dir}/runs`, { recursive: true });
 const contract = JSON.parse(readFileSync('game.contract.json', 'utf8'));
@@ -17,20 +17,23 @@ const inp = (name) => ['--inputs', `${S}/${name}.inputs.json`];
 const ev = (L, n) => L.filter((l) => l.type === 'event' && l.name === n);
 const snap = (L, t) => L.find((l) => l.type === 'snapshot' && l.tick === t);
 const dXZ = (a, b) => Math.hypot(a[0] - b[0], a[2] - b[2]);
+const lan = (s, id) => s.lanterns.find((l) => l.id === id);
+const goIs = (L, reason) => (L.find((l) => l.name === 'game_over')?.data.reason === reason ? [] : [`game_over not ${reason}`]);
 
 // Each case: id, requirement, night, args, expected end fields, required events, extra check (returns problems[])
 const cases = [
   // ---- Phase 1 regression (re-run with Ticket-02 standard numbers)
-  { id: 'P1-win-n1', req: 'Night 1 playable from start to WIN (bot-recorded inputs, standard map)', night: 1, args: ['--seed', '1', ...inp('win-n1-seed1'), '--ticks', '21600', '--snapshot-every', '600'], expect: { state: 'won' }, events: ['mote_picked', 'deposit', 'lantern_lit', 'game_over'] },
-  { id: 'P1-idle-lose', req: 'Shades spawn, chase and hit; LOSE when flames run out (no input)', night: 1, args: ['--seed', '1', '--ticks', '21600', '--snapshot-every', '600'], expect: { state: 'lost' }, events: ['shade_spawned', 'player_hit', 'game_over'] },
-  { id: 'P1-dawn', req: 'LOSE at dawn when time runs out', night: 1, args: ['--seed', '1', ...sc('dawn'), '--ticks', '21600', '--snapshot-every', '60'], expect: { state: 'lost', ticks: 300 }, events: ['game_over'] },
-  { id: 'P1-lantern', req: 'Pick 10 motes along +Z, deposit at L1 (cost 10), lantern lights; +10/mote deposited +100', night: 1, args: ['--seed', '1', ...sc('lantern-run'), ...inp('lantern-run'), '--ticks', '240', '--snapshot-every', '30'], expect: { state: 'playing', score: 10 * contract.tuning.score.per_mote + contract.tuning.score.per_lantern }, events: ['mote_picked', 'deposit', 'lantern_lit'] },
+  { id: 'P1-win-n1', req: 'Night 1 playable to WIN: survive to dawn with >= 3/5 lit (bot-recorded inputs)', night: 1, args: ['--seed', '1', ...inp('win-n1-seed1'), '--ticks', '21600', '--snapshot-every', '600'], expect: { state: 'won', ticks: 14400 }, events: ['mote_picked', 'deposit', 'lantern_lit', 'game_over'], check: (L) => goIs(L, 'dawn_survived') },
+  { id: 'P1-idle-lose', req: 'T3: idle Mây lights nothing -> LOSE at dawn (shades now gather at unlit lanterns, out of her 12 m detection)', night: 1, args: ['--seed', '1', '--ticks', '21600', '--snapshot-every', '600'], expect: { state: 'lost', ticks: 14400 }, events: ['shade_spawned', 'game_over'],
+    check: (L) => [...goIs(L, 'dawn'), ...(snap(L, 3000).shades.every((x) => x.state === 'wander' || x.state === 'spawning') ? [] : ['shades not wandering'])] },
+  { id: 'P1-dawn', req: 'LOSE at dawn when too few lanterns are lit', night: 1, args: ['--seed', '1', ...sc('dawn'), '--ticks', '21600', '--snapshot-every', '60'], expect: { state: 'lost', ticks: 300 }, events: ['game_over'] },
+  { id: 'P1-lantern', req: 'Pick 10 motes along +Z, deposit at L1 (cost 10), lantern lights; +5/mote put in +100', night: 1, args: ['--seed', '1', ...sc('lantern-run'), ...inp('lantern-run'), '--ticks', '240', '--snapshot-every', '30'], expect: { state: 'playing', score: 10 * contract.tuning.score.per_mote + contract.tuning.score.per_lantern }, events: ['mote_picked', 'deposit', 'lantern_lit'] },
   { id: 'P1-contract-example', req: 'Example scenario + inputs from the Test Contract run cleanly', night: 1, args: ['--seed', '1', ...sc('contract-example'), ...inp('contract-example'), '--ticks', '300'], expect: { state: 'playing' }, events: ['mote_picked'] },
   // ---- Phase 2: three nights
-  { id: 'P2-win-n2', req: 'Night 2 (Đảo Cau, 6 lanterns, 2 islands) playable to WIN', night: 2, args: ['--seed', '1', ...inp('win-n2-seed1'), '--ticks', '21600', '--snapshot-every', '600'], expect: { state: 'won' }, events: ['lantern_lit', 'game_over'],
-    check: (L) => (ev(L, 'lantern_lit').length === 6 ? [] : ['not 6 lanterns']) },
-  { id: 'P2-win-n3', req: 'Night 3 (Đảo Chuông, 7 lanterns on 3 tiers, wind) playable to WIN', night: 3, args: ['--seed', '1', ...inp('win-n3-seed1'), '--ticks', '21600', '--snapshot-every', '600'], expect: { state: 'won' }, events: ['lantern_lit', 'game_over'],
-    check: (L) => (ev(L, 'lantern_lit').length === 7 && L.some((l) => l.type === 'snapshot' && l.wind.active) ? [] : ['not 7 lanterns / no wind']) },
+  { id: 'P2-win-n2', req: 'Night 2 (Đảo Cau, 2 islands) playable to WIN: >= 4/6 lit at dawn', night: 2, args: ['--seed', '1', ...inp('win-n2-seed1'), '--ticks', '21600', '--snapshot-every', '600'], expect: { state: 'won', ticks: 16200 }, events: ['lantern_lit', 'game_over'],
+    check: (L) => goIs(L, 'dawn_survived') },
+  { id: 'P2-win-n3', req: 'Night 3 (Đảo Chuông, 3 tiers, wind) playable to WIN: >= 5/7 lit at dawn', night: 3, args: ['--seed', '2', ...inp('win-n3-seed2'), '--ticks', '21600', '--snapshot-every', '600'], expect: { state: 'won', ticks: 18000 }, events: ['lantern_lit', 'game_over'],
+    check: (L) => [...goIs(L, 'dawn_survived'), ...(L.some((l) => l.type === 'snapshot' && l.wind.active) ? [] : ['no wind'])] },
   { id: 'P2-idle-n2', req: 'Night 2 defaults: shades every 7 s (max 8), Gió Lạc spawn at 1200', night: 2, args: ['--seed', '2', '--ticks', '21600', '--snapshot-every', '300'], expect: {}, events: ['shade_spawned'],
     check: (L) => {
       const p = [];
@@ -55,6 +58,23 @@ const cases = [
       const p = ev(L, 'pulse');
       return p.length === 2 && p[0].tick === 1 && p[1].tick === 181 && p[0].data.stunned_ids.join() === 'S1,S2' && snap(L, 15).shades[0].pos[0] === 7 ? [] : [`pulses ${JSON.stringify(p)}`];
     } },
+  // ---- Phase 3: Ticket-03 "Đèn cạn dầu"
+  { id: 'P3-fuel-out', req: 'Lit lantern starts at 100 fuel, burns 1/s, goes out at 0 (tick 6000): lantern_out, deposited 0, ever_lit', night: 1, args: ['--seed', '1', ...sc('p3-fuel-out'), '--ticks', '6001', '--snapshot-every', '600'], expect: { state: 'playing' }, events: ['lantern_out'],
+    check: (L) => (ev(L, 'lantern_out')[0].tick === 6000 && lan(snap(L, 3000), 'L1').fuel === 50 && lan(snap(L, 6000), 'L1').ever_lit && lan(snap(L, 6000), 'L1').fuel === 0 ? [] : ['fuel timeline']) },
+  { id: 'P3-refuel', req: 'Refuel a lit lantern: used = min(carried, ceil((100-fuel)/10)), capped at 100, +5 per mote', night: 1, args: ['--seed', '1', ...sc('p3-refuel'), ...inp('p3-refuel'), '--ticks', '10', '--snapshot-every', '1'], expect: { state: 'playing', score: 25 }, events: ['refuel'],
+    check: (L) => (JSON.stringify(ev(L, 'refuel')[0].data) === '{"lantern_id":"L1","amount":5,"fuel":100}' ? [] : ['refuel data']) },
+  { id: 'P3-relight', req: 'Burned-out lantern relights for 5 motes: lantern_lit relight:true, +40, relit_count 1', night: 1, args: ['--seed', '1', ...sc('p3-relight'), ...inp('p3-relight'), '--ticks', '10', '--snapshot-every', '1'], expect: { state: 'playing', score: 5 * 5 + 40 }, events: ['lantern_out', 'lantern_lit'],
+    check: (L) => (ev(L, 'lantern_lit')[0].data.relight === true && lan(snap(L, 6), 'L1').relit_count === 1 && lan(snap(L, 6), 'L1').fuel === 100 ? [] : ['relight']) },
+  { id: 'P3-drain', req: 'Wandering shade walks to the weak lantern (< 30), state drain, -5/s, fuel_drain every 60 ticks, lantern goes out', night: 1, args: ['--seed', '1', ...sc('p3-drain'), '--ticks', '300', '--snapshot-every', '10'], expect: { state: 'playing' }, events: ['fuel_drain', 'lantern_out'],
+    check: (L) => (snap(L, 90).shades[0].state === 'drain' && ev(L, 'fuel_drain').length === 3 && ev(L, 'lantern_out')[0].tick === 275 ? [] : ['drain timeline']) },
+  { id: 'P3-drain-refuel', req: 'Refuelling a drained lantern to >= 30 pushes the shade out to 6 m in <= 30 ticks, no damage', night: 1, args: ['--seed', '1', ...sc('p3-drain-refuel'), ...inp('p3-drain-refuel'), '--ticks', '60', '--snapshot-every', '1'], expect: { state: 'playing' }, events: ['refuel'],
+    check: (L) => (ev(L, 'player_hit').length === 0 && dXZ(snap(L, 30).shades[0].pos, [0, 0, 25]) >= 6 && snap(L, 1).shades[0].state !== 'drain' ? [] : ['evict']) },
+  { id: 'P3-lowfuel', req: 'Safe zone holds at exactly 30 fuel and disappears below 30 (shade gets in and hits)', night: 1, args: ['--seed', '1', ...sc('p3-lowfuel'), '--ticks', '120', '--snapshot-every', '1'], expect: { state: 'playing' }, events: ['player_hit'],
+    check: (L) => (snap(L, 1).shades[0].pos[0] === 6.002 && snap(L, 2).shades[0].pos[0] < 6 ? [] : ['zone boundary']) },
+  { id: 'P3-dawn-win', req: 'Dawn with 3/5 lit -> won dawn_survived, bonus 50 + floor(fuel) per lit lantern + 50 per flame', night: 1, args: ['--seed', '1', ...sc('p3-dawn-win'), '--ticks', '100', '--snapshot-every', '10'], expect: { state: 'won', ticks: 60, score: 3 * (50 + 99) + 150 }, events: ['game_over'], check: (L) => goIs(L, 'dawn_survived') },
+  { id: 'P3-dawn-lose', req: 'Dawn with 2/5 lit -> lost dawn, no bonus', night: 1, args: ['--seed', '1', ...sc('p3-dawn-lose'), '--ticks', '100', '--snapshot-every', '10'], expect: { state: 'lost', ticks: 60, score: 0 }, events: ['game_over'], check: (L) => goIs(L, 'dawn') },
+  { id: 'P3-capacity', req: 'Capacity grows 10 -> 12 after a successful light; pickup fills to the new capacity', night: 1, args: ['--seed', '1', ...sc('p3-capacity'), ...inp('p3-capacity'), '--ticks', '5', '--snapshot-every', '1'], expect: { state: 'playing' }, events: ['lantern_lit', 'mote_picked'],
+    check: (L) => (snap(L, 2).player.capacity === 12 && snap(L, 2).player.carried === 12 && snap(L, 2).motes_active === 4 ? [] : [`cap ${JSON.stringify(snap(L, 2).player)}`]) },
   { id: 'P2-safezone', req: 'Lighting a lantern pushes shades inside to the 6 m edge in <= 30 ticks, no damage', night: 1, args: ['--seed', '1', ...sc('p2-safezone'), ...inp('p2-safezone'), '--ticks', '300', '--snapshot-every', '1'], expect: { state: 'playing' }, events: ['lantern_lit'],
     check: (L) => (ev(L, 'player_hit').length === 0 && snap(L, 30).shades[0].pos[0] === 6.002 ? [] : ['evict']) },
   { id: 'P2-pause', req: 'Pause/resume: tick runs, sim_tick/time/cooldowns freeze, state "paused"', night: 1, args: ['--seed', '1', ...sc('p2-pause'), ...inp('p2-pause'), '--ticks', '30', '--snapshot-every', '1'], expect: { state: 'playing' }, events: ['paused', 'resumed'],

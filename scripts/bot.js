@@ -3,7 +3,7 @@
 // Navigation: Dijkstra on a 1 m grid of the night's ground (cliffs, ramps, bridge, launch pads).
 // Usage: node scripts/bot.js <night> <seed> <out-inputs.json>
 import { writeFileSync } from 'node:fs';
-import { createWorld, step } from '../src/sim/world.js';
+import { createWorld, step, timeLeft, winNeed, lightCost, capacity } from '../src/sim/world.js';
 import { TUNING as T, WORLD as W } from '../src/sim/config.js';
 
 const night = Number(process.argv[2] ?? 1);
@@ -129,11 +129,22 @@ for (let k = 0; k < 25000 && w.state === 'playing'; k++) {
         }
         const { dist, prev: pv } = dijkstra(from, danger);
         const cellOf = (o) => nearestCell(o.x, o.z, o.y);
-        const lanterns = w.lanterns.filter((l) => !l.lit);
-        const nearL = lanterns.map((l) => ({ o: l, c: cellOf(l) })).filter((t) => t.c >= 0).sort((a, b) => dist[a.c] - dist[b.c])[0];
-        const need = nearL ? T.lantern_cost - nearL.o.deposited : 0;
+        // Ticket-03 strategy: early -> first-light never-lit lanterns (+100, capacity) and stock motes;
+        // final window -> make sure need+1 lanterns are lit with enough fuel to reach dawn (relight = 5 motes).
+        const tl = timeLeft(w);
+        const finalWin = Number(process.env.BOT_FINAL) || { 1: 75, 2: 85, 3: 95 }[night];
+        const keep = Math.min(w.lanterns.length, winNeed(w) + 1);
+        const fuelS = (l) => l.fuel / 60;
+        const good = (l) => l.lit && fuelS(l) > tl + 3;
+        const motesFor = (l) => (l.lit ? Math.max(1, Math.ceil(((Math.min(100, tl + 8) - fuelS(l)) * 60) / 600)) : lightCost(l) - l.deposited);
+        let cands = [];
+        if (tl <= finalWin) {
+          if (w.lanterns.filter(good).length < keep) cands = w.lanterns.filter((l) => !good(l));
+        } else if (tl > finalWin + 35) cands = w.lanterns.filter((l) => !l.lit && !l.everLit);
+        const nearL = cands.map((l) => ({ o: l, c: cellOf(l) })).filter((t) => t.c >= 0 && Number.isFinite(dist[t.c])).sort((a, b) => dist[a.c] - dist[b.c])[0];
+        const need = nearL ? motesFor(nearL.o) : Infinity;
         let target = nearL;
-        if (p.carried < Math.min(need, T.carry_capacity) || p.carried === 0) {
+        if (p.carried < Math.min(need, capacity(p)) || p.carried === 0) {
           const motes = w.motes.map((m) => ({ o: m, c: cellOf(m) })).filter((t) => t.c >= 0 && Number.isFinite(dist[t.c]));
           // prefer motes near the route to the lantern
           const via = (m) => dist[m.c] + (nearL ? 0.7 * Math.hypot(m.o.x - nearL.o.x, m.o.z - nearL.o.z) : 0);
@@ -165,6 +176,7 @@ for (let k = 0; k < 25000 && w.state === 'playing'; k++) {
       const dd = Math.hypot(gx - p.x, gz - p.z);
       if (dd > 0.05) f.move = [+((gx - p.x) / dd).toFixed(3), +((gz - p.z) / dd).toFixed(3)];
       const isLantern = w.lanterns.includes(tgt);
+      if (!isLantern && (p.carried >= capacity(p)) && !w.charms.includes(tgt)) replanAt = k; // full: re-decide
       if (isLantern && d2(p, tgt) <= T.interact_radius - 0.05) {
         f.move = [0, 0];
         f.interact = !prev.interact;
@@ -172,7 +184,7 @@ for (let k = 0; k < 25000 && w.state === 'playing'; k++) {
       }
       if (!isLantern && d2(p, tgt) < 0.3) replanAt = k;
       // on the way: top up any unlit lantern in reach
-      if (!f.interact && p.carried > 0 && w.lanterns.some((l) => !l.lit && d2(p, l) <= T.interact_radius - 0.05)) f.interact = !prev.interact;
+      if (!f.interact && p.carried > 0 && w.lanterns.some((l) => !l.lit && !l.everLit && d2(p, l) <= T.interact_radius - 0.05)) f.interact = !prev.interact;
       // travel dash: long straight safe stretch ahead on the same level
       if (p.grounded && p.dash === 0 && (p.dashCd === 0 || p.charm > 0) && d2(p, tgt) > 4 && (f.move[0] || f.move[1])) {
         let safe = true;

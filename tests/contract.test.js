@@ -22,18 +22,21 @@ const tmpFile = (name, data) => {
   return p;
 };
 
-test('C-01 game.contract.json v1.1: all fields, tuning mirrors the game and the Ticket-02 standard numbers', () => {
-  assert.equal(contract.contract_version, '1.1');
+test('C-01 game.contract.json v1.2: all fields, tuning mirrors the game and the Ticket-02/03 standard numbers', () => {
+  assert.equal(contract.contract_version, '1.2');
   for (const k of ['team', 'build_cmd', 'run_cmd', 'headless_cmd']) assert.equal(typeof contract[k], 'string', k);
   assert.deepEqual(contract.tuning, TUNING);
   assert.equal(contract.tuning.lantern_count_night1, 5);
   // Ticket-02 Part 1 standard numbers
   assert.deepEqual(contract.tuning, {
     player_speed: 6, carry_capacity: 10, lantern_cost: 10, lantern_count_night1: 5, pickup_radius: 1, interact_radius: 2,
-    pulse_cost: 3, pulse_radius: 5, night1_duration_s: 300, night2_duration_s: 330, night3_duration_s: 360, flames: 3,
+    pulse_cost: 3, pulse_radius: 5, night1_duration_s: 240, night2_duration_s: 270, night3_duration_s: 300, flames: 3,
     invuln_s: 1.5, hit_drop_ratio: 0.5, pulse_stun_s: 2, pulse_push_m: 4, pulse_cooldown_s: 3, safe_radius: 6, shade_speed: 4,
     shade_hit_radius: 1, fall_enabled: true, dash_speed: 14, dash_duration_s: 0.2, dash_cooldown_s: 1.5,
-    score: { per_mote: 10, per_lantern: 100, per_stun: 5, per_second_left: 2, per_flame_left: 50 },
+    fuel_max: 100, fuel_decay_per_s: 1.0, fuel_per_mote: 10, relight_cost: 5, win_ratio: 0.6, drain_per_s: 5,
+    low_fuel_threshold: 30, capacity_max: 20,
+    // T3: +5 per mote put in, time bonus removed (0); relight 40 / drain stun 15 / dawn lantern 50 live in WORLD
+    score: { per_mote: 5, per_lantern: 100, per_stun: 5, per_second_left: 0, per_flame_left: 50 },
   });
 });
 
@@ -69,8 +72,14 @@ test('C-08 v1.1 snapshot fields: night, wind, player vel/grounded/invuln/cooldow
         assert.ok(['idle', 'chase', 'flee', 'removed'].includes(d.state));
       }
       for (const c of s.charms) for (const k of ['id', 'available', 'respawn_s']) assert.ok(k in c, `charm.${k}`);
-      for (const sh of s.shades) assert.ok(['spawning', 'wander', 'chase', 'recoil', 'stunned'].includes(sh.state), sh.state);
+      for (const sh of s.shades) assert.ok(['spawning', 'wander', 'chase', 'recoil', 'stunned', 'drain'].includes(sh.state), sh.state);
       assert.equal(s.motes_active, s.motes.length);
+      assert.equal(typeof s.player.capacity, 'number'); // v1.2
+      for (const l of s.lanterns) {
+        for (const k of ['fuel', 'ever_lit', 'relit_count']) assert.ok(k in l, `lantern.${k}`);
+        if (!l.lit) assert.equal(l.fuel, 0);
+        assert.equal(Math.round(l.fuel * 10) / 10, l.fuel); // 1 decimal
+      }
     }
   }
 });
@@ -121,6 +130,10 @@ test('C-05 malformed inputs / scenario -> exit 2 with stderr message', () => {
     ['--scenario', tmpFile('bad11.json', { charms: [{ pos: [1, 0] }] })],
     ['--scenario', tmpFile('bad12.json', { player: { dash_cd_ticks: -1 } })],
     ['--scenario', tmpFile('bad13.json', { wind_enabled: 'yes' })],
+    ['--scenario', tmpFile('bad14.json', { lanterns: [{ id: 'L1', lit: true, fuel: 120 }] })],
+    ['--scenario', tmpFile('bad15.json', { lanterns: [{ id: 'L1', ever_lit: 'yes' }] })],
+    ['--scenario', tmpFile('bad16.json', { shades: [{ pos: [1, 0, 1], target_lantern_id: 'L9' }] })],
+    ['--scenario', tmpFile('bad17.json', { player: { successful_lights: 1.5 } })],
   ];
   for (const extra of bad) {
     const r = cli(['--seed', '1', '--night', '1', '--ticks', '10', '--out', join(tmp, 'x.jsonl'), ...extra]);
