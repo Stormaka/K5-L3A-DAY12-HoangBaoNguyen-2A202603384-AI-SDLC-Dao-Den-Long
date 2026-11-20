@@ -12,7 +12,7 @@ Game 3D góc nhìn thứ ba chạy trên trình duyệt (Three.js). Mây, ngư�
 
 ## Yêu cầu hệ thống
 
-- **Node.js ≥ 18** (đã thử với Node 20, 22, 24 trên CI) và npm.
+- **Node.js ≥ 18** để chơi, chạy test, headless và soak (đã thử với Node 20, 22, 24 trên CI). **Benchmark cần Node ≥ 22** (dùng `WebSocket` có sẵn để điều khiển Chrome); script báo lỗi rõ ràng nếu Node cũ hơn.
 - Trình duyệt có **WebGL 2**: Chrome, Edge hoặc Firefox bản mới. Khuyên dùng GPU rời hoặc GPU tích hợp đời mới.
 - **Benchmark** cần cài Google Chrome, Chromium hoặc Microsoft Edge. Script tự tìm trình duyệt; có thể chỉ định bằng `--chrome <đường dẫn>` hoặc biến `CHROME`.
 - Windows 10/11, macOS hoặc Linux. Màn hình ≥ 1280×720.

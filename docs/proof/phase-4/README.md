@@ -23,11 +23,18 @@ Máy: Intel i7-13620H (16 luồng), 16 GB RAM, NVIDIA RTX 5050 Laptop, Windows 1
 
 | Chỉ số | Ngưỡng | bench.json | Dải qua các lần đo lặp |
 |---|---|---|---|
-| avg_fps | ≥ 60 | **243.6** | 231 – 320 |
-| p1_low_fps | ≥ 30 | **74.4** | 44.6 – 92.2 |
-| frame_ms_p95 | — | 8.3 ms | 6.6 – 9.2 ms |
-| load_ms | ≤ 10000 | **1917** | 1740 – 3559 |
-| peak_mem_mb | — | 640 | 626 – 642 |
+| avg_fps | ≥ 60 | **315.1** | 225 – 315 (cảnh cũ: 231 – 320) |
+| p1_low_fps | ≥ 30 | **34.5** | **18.2** – 34.5 (cảnh cũ: 44.6 – 92.2) |
+| frame_ms_p95 | — | 6.9 ms | 6.9 – 10.2 ms |
+| load_ms | ≤ 10000 | **2247** | 1157 – 2247 |
+| peak_mem_mb | — | 624 | 624 – 636 |
+
+**Đọc kỹ cột 1% thấp:**
+- Sau khi sửa cảnh theo agent chấm (A4-14: cả 200 Bóng Mực di chuyển suốt buổi đo), 3 lần đo cho 34.5 / 18.2 / 31.4 FPS. **Một lần dưới ngưỡng 30.**
+- Cùng lúc đó, cảnh cũ cũng chỉ được 34.2 FPS, trong khi vài giờ trước là 44.6–92.2.
+- Lúc đo lại, **laptop đang chạy pin** (Win32_Battery.BatteryStatus = 1) và có ứng dụng nền ngốn CPU (audiodg, Riot Client).
+- Các khung chậm nhất kéo dài 90–100 ms, nằm ở phía trình duyệt/GPU (`late` hoặc `render`). Sim chỉ chiếm 0.09 ms/tick, tối đa 4 ms.
+- Kết luận trung thực: **avg và load_ms đạt chắc chắn; p1_low_fps đạt ở lần đo chính thức nhưng nhạy với điều kiện máy.** Cần đo lại khi cắm sạc và tắt ứng dụng nền.
 
 | Soak | Ngưỡng | soak.json |
 |---|---|---|
@@ -53,3 +60,4 @@ Máy: Intel i7-13620H (16 luồng), 16 GB RAM, NVIDIA RTX 5050 Laptop, Windows 1
 | §7 Video demo < 5 phút | [docs/demo/README.md](../../demo/README.md) (kịch bản quay) | **Chưa có**: cần bạn tự quay |
 | DoD: bench.json, soak.json được commit | file trong thư mục này | Đạt |
 | DoD: test ẩn Phase 1–3 vẫn đạt | 65 test cũ + 28 kịch bản headless; runs Phase 3 giống từng byte | Đạt (với test của bài) |
+| Rubric B: đánh giá do agent khác người viết | Agent kiểm toán độc lập, 33 probe headless tự viết, chạy lại bằng chứng: [docs/proof/audit/](../audit/) | Đạt (ước 81/100 sau khi gỡ việc trên GitHub) |

@@ -27,13 +27,14 @@
 | A4-11 | Tên hợp lệ | `^[\p{L}\p{N}_]{3,12}$` sau khi chuẩn hóa NFC (điểm cộng: nhận chữ có dấu); thời điểm lưu theo giờ địa phương kèm múi giờ (ví dụ `+07:00`); bằng điểm thì so thời điểm theo UTC | |
 | A4-12 | `score` và `nights_won` khi thua | Điểm = tổng các Đêm đã thắng trong lượt chơi này (Đêm đang thua không tính); `seed` = seed của Đêm đầu tiên trong lượt chơi | "Tổng điểm các Đêm đã thắng" |
 | A4-13 | Phím Esc | Luôn mở tạm dừng, trừ khi người chơi gán Esc cho hành động khác. Phím tạm dừng mặc định đổi được (mặc định `P`) | |
+| A4-14 | Bóng Mực "vẫn di chuyển theo wander" trong bench | Trong bench, Bóng Mực đi lang thang giữa các điểm trên đảo (cách đi của `wander` ở Phase 2), **không** nhắm tới đèn tắt | Agent chấm độc lập phát hiện: với luật Ticket-03, cả 200 con dồn về L4/L5 và đứng yên sau khoảng 20 s, nên cảnh không còn "rải đều" và "vẫn di chuyển". Chỉ áp dụng cho bench; gameplay và headless không đổi (đã kiểm: các run Phase 3 giống từng byte) |
 
 ## 3. Tiêu chí nghiệm thu → bằng chứng
 
 | Mục | Tiêu chí | Kiểm chứng |
 |---|---|---|
 | §1 Benchmark | Cảnh chuẩn: 200 `wander` + 100 đom đóm + L1–L3 dầu 100; không sinh thêm, không sát thương, không nhặt, không hao dầu, không kết thúc; camera (30,15,0) quay ngược chiều kim đồng hồ, 15 s/vòng; công thức avg / p1 / p95 | P4-04, P4-05, P4-06; [bench.json](../proof/phase-4/bench.json); ảnh [bench-scene](../proof/phase-4/img/bench-scene.png) |
-| §1 Ngưỡng | avg ≥ 60, 1% thấp ≥ 30, tải ≤ 10 s | bench.json: **243.6 / 74.4 FPS, 1917 ms** (máy dev). Đo lặp: avg 231–320, 1% thấp 44.6–92.2 |
+| §1 Ngưỡng | avg ≥ 60, 1% thấp ≥ 30, tải ≤ 10 s | bench.json: **315.1 / 34.5 FPS, 2247 ms** (máy dev, cảnh đã sửa A4-14). Đo lặp lúc chạy pin: avg 225–315, 1% thấp 18.2–34.5 (**1 trên 3 lần dưới 30**); cảnh cũ trước đó, khi máy rảnh: 1% thấp 44.6–92.2. Xem giải thích trong proof/phase-4/README.md |
 | §2 Soak | 10 Đêm 1→2→3 trong 1 tiến trình, seed + i, input ngẫu nhiên đúng tỉ lệ, 0 crash, mem ≤ ×1.2 | P4-07; [soak.json](../proof/phase-4/soak.json): **0 crash, 47.4 → 48.3 MB (×1.02)**; 60 Đêm: 46.9 → 49.4 MB |
 | §3 Bảng xếp hạng | Tên 3–12, top 10, điểm giảm dần / bằng điểm thì sớm hơn đứng trên, lưu đĩa, còn sau khi mở lại, lệnh xuất đúng thứ tự, màn hình từ menu, nhập tên sau Bình Minh hoặc khi thua | P4-01, P4-02, P4-03; ảnh [leaderboard](../proof/phase-4/img/leaderboard.png), [save-score](../proof/phase-4/img/save-score.png) |
 | §4 Đổi phím | 11 hành động, báo trùng phím, khôi phục mặc định, được lưu | Ảnh [keys-duplicate](../proof/phase-4/img/keys-duplicate.png). Bấm phím thật **chưa kiểm chứng tự động** |

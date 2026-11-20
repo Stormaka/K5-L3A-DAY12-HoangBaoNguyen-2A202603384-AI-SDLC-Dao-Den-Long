@@ -32,7 +32,8 @@ Ghi chú và giả định: [docs/notes/phase-4.md](docs/notes/phase-4.md). Số
 ### Hiệu năng
 - Bóng Mực và đom đóm vẽ bằng `InstancedMesh`; tia hút dầu gộp vào một `LineSegments`.
 - Sim: bỏ việc sao chép và sắp xếp mảng đèn ở mỗi tick. Mỗi tick nhanh hơn khoảng 7 lần; đầu ra headless giống từng byte.
-- Kết quả bench trên máy dev: avg 243.6 FPS, 1% thấp 74.4 FPS, tải 1.9 s.
+- Kết quả bench trên máy dev: avg 315.1 FPS, 1% thấp 34.5 FPS, tải 2.2 s (bench.json). Đo lặp khi chạy pin: 1% thấp 18.2–34.5, xem docs/proof/phase-4/README.md.
+- Sau khi agent chấm độc lập phát hiện, cảnh bench được sửa để cả 200 Bóng Mực di chuyển suốt buổi đo (A4-14). `bench.js` báo rõ khi Node < 22. Thêm `.gitattributes` để file bằng chứng `.jsonl` giữ nguyên byte trên mọi hệ điều hành.
 
 ## phase-3 — Ticket-03 "Đèn cạn dầu" + Test Contract v1.2
 

@@ -33,6 +33,7 @@ Số liệu nằm duy nhất trong `src/sim/config.js` (TUNING = khóa contract,
 | A2-18 | Tạm dừng trong headless | Nút `pause` bật/tắt. Trong khi tạm dừng, mọi input khác bị bỏ qua nhưng vẫn ghi nhận trạng thái nút, nên nhấn trong lúc dừng **không** kích hoạt sau khi tiếp tục. Bước bấm "tiếp tục" chạy gameplay luôn | Ticket: "nếu vừa tạm dừng thì dừng bước ở đây" (chỉ áp dụng khi vừa dừng) |
 | A2-19 | Bùa Gió hồi lại | Đếm ngược 2700 tick trong pha "giảm bộ đếm"; tick nó hiện lại thì nhặt được ngay | Ticket liệt kê "hồi bùa" trong pha bộ đếm |
 | A2-20 | Tạm dừng trên web | Esc/P dừng hẳn vòng lặp sim (không gọi `step`); mất focus cửa sổ cũng tự tạm dừng | "logic dừng hoàn toàn" |
+| A2-21 | Bóng Mực trong scenario không có `state` | Mặc định `chase`. Sau đó luật thường áp dụng ngay: cách Mây > 18 m thì về `wander` ở tick đầu tiên. Ghi bổ sung sau khi agent chấm độc lập chỉ ra (trước đó code đã làm vậy nhưng chưa ghi thành giả định) | Contract v1.0: bóng trong scenario "ở trạng thái hoạt động bình thường ngay lập tức"; `chase` là trạng thái hoạt động đầy đủ, không có thời gian `spawning` |
 
 ## 3. Tiêu chí nghiệm thu (AC) → test
 

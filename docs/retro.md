@@ -9,7 +9,7 @@ Hoàng Bảo Nguyên · 2A202603384 · làm cùng Claude Code (Claude Opus 5.5)
 | 1. PRD-0, Contract v1.0 | Đêm 1 chơi được, headless tất định | 26 test, 5 kịch bản headless, bot thắng | Cảm giác chơi tay; game hơi dễ (bot thắng ở giây 44–56) |
 | 2. Ticket-02 "Ba hòn đảo", v1.1 | Số liệu chuẩn, 3 bản đồ, Gió Lạc, Bùa Gió, tạm dừng, cài đặt, âm thanh, HUD | 53 test, 19 kịch bản, bot thắng cả 3 Đêm, FPS trung bình 130–149 | Âm thanh, luồng menu bằng tay; Đêm 3 rất sát giờ |
 | 3. Ticket-03 "Đèn cạn dầu", v1.2 | Dầu đèn, `drain`, thắng ở bình minh, sức chứa, mù màu | 65 test, 28 kịch bản, ADR, 7 test cũ cập nhật có ghi lý do | Cân bằng: bot thắng Đêm 2 3/7, Đêm 3 2/7 |
-| 4. Ticket-04 "v1.0.0", v1.3 | Bench, soak, bảng xếp hạng, dễ tiếp cận, đóng gói | 73 test, bench 243.6 / 74.4 FPS, soak 0 crash ×1.02, gói chạy không cần npm | Video demo, thao tác phím thật, máy chấm thật |
+| 4. Ticket-04 "v1.0.0", v1.3 | Bench, soak, bảng xếp hạng, dễ tiếp cận, đóng gói | 73 test, bench 315.1 / 34.5 FPS (1% thấp nhạy với điều kiện máy), soak 0 crash ×1.02, gói chạy không cần npm | Video demo, thao tác phím thật, máy chấm thật |
 
 Điểm chung cả 4 phase:
 - Mọi yêu cầu kiểm được bằng logic đều có test hoặc kịch bản headless chạy qua **CLI thật**.
