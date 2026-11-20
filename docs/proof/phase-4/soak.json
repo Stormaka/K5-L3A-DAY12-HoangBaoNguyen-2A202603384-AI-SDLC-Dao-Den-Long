@@ -1,0 +1,104 @@
+{
+  "nights": 10,
+  "crashes": 0,
+  "results": [
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost"
+  ],
+  "mem_start_mb": 47.4,
+  "mem_end_mb": 48.3,
+  "duration_s": 1.09,
+  "seed": 7,
+  "per_night": [
+    {
+      "night": 1,
+      "seed": 8,
+      "result": "lost",
+      "ticks": 1956,
+      "score": 5,
+      "rss_mb_after": 49.7
+    },
+    {
+      "night": 2,
+      "seed": 9,
+      "result": "lost",
+      "ticks": 2931,
+      "score": 0,
+      "rss_mb_after": 47.4
+    },
+    {
+      "night": 3,
+      "seed": 10,
+      "result": "lost",
+      "ticks": 2193,
+      "score": 0,
+      "rss_mb_after": 47.5
+    },
+    {
+      "night": 1,
+      "seed": 11,
+      "result": "lost",
+      "ticks": 1418,
+      "score": 5,
+      "rss_mb_after": 48.9
+    },
+    {
+      "night": 2,
+      "seed": 12,
+      "result": "lost",
+      "ticks": 1070,
+      "score": 0,
+      "rss_mb_after": 51.5
+    },
+    {
+      "night": 3,
+      "seed": 13,
+      "result": "lost",
+      "ticks": 2177,
+      "score": 0,
+      "rss_mb_after": 48.1
+    },
+    {
+      "night": 1,
+      "seed": 14,
+      "result": "lost",
+      "ticks": 1406,
+      "score": 0,
+      "rss_mb_after": 47.6
+    },
+    {
+      "night": 2,
+      "seed": 15,
+      "result": "lost",
+      "ticks": 3110,
+      "score": 5,
+      "rss_mb_after": 52.8
+    },
+    {
+      "night": 3,
+      "seed": 16,
+      "result": "lost",
+      "ticks": 2741,
+      "score": 0,
+      "rss_mb_after": 56.6
+    },
+    {
+      "night": 1,
+      "seed": 17,
+      "result": "lost",
+      "ticks": 2414,
+      "score": 0,
+      "rss_mb_after": 55.7
+    }
+  ],
+  "node": "v24.16.0",
+  "pass": true
+}

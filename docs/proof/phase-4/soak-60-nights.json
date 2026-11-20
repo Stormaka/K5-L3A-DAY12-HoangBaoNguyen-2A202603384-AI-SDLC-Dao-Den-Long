@@ -1,0 +1,554 @@
+{
+  "nights": 60,
+  "crashes": 0,
+  "results": [
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost",
+    "lost"
+  ],
+  "mem_start_mb": 46.9,
+  "mem_end_mb": 49.4,
+  "duration_s": 2.56,
+  "seed": 7,
+  "per_night": [
+    {
+      "night": 1,
+      "seed": 8,
+      "result": "lost",
+      "ticks": 1956,
+      "score": 5,
+      "rss_mb_after": 49.3
+    },
+    {
+      "night": 2,
+      "seed": 9,
+      "result": "lost",
+      "ticks": 2931,
+      "score": 0,
+      "rss_mb_after": 51.1
+    },
+    {
+      "night": 3,
+      "seed": 10,
+      "result": "lost",
+      "ticks": 2193,
+      "score": 0,
+      "rss_mb_after": 48.5
+    },
+    {
+      "night": 1,
+      "seed": 11,
+      "result": "lost",
+      "ticks": 1418,
+      "score": 5,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 2,
+      "seed": 12,
+      "result": "lost",
+      "ticks": 1070,
+      "score": 0,
+      "rss_mb_after": 50.6
+    },
+    {
+      "night": 3,
+      "seed": 13,
+      "result": "lost",
+      "ticks": 2177,
+      "score": 0,
+      "rss_mb_after": 47.8
+    },
+    {
+      "night": 1,
+      "seed": 14,
+      "result": "lost",
+      "ticks": 1406,
+      "score": 0,
+      "rss_mb_after": 47.6
+    },
+    {
+      "night": 2,
+      "seed": 15,
+      "result": "lost",
+      "ticks": 3110,
+      "score": 5,
+      "rss_mb_after": 53.1
+    },
+    {
+      "night": 3,
+      "seed": 16,
+      "result": "lost",
+      "ticks": 2741,
+      "score": 0,
+      "rss_mb_after": 59.5
+    },
+    {
+      "night": 1,
+      "seed": 17,
+      "result": "lost",
+      "ticks": 2414,
+      "score": 0,
+      "rss_mb_after": 55.6
+    },
+    {
+      "night": 2,
+      "seed": 18,
+      "result": "lost",
+      "ticks": 1921,
+      "score": 0,
+      "rss_mb_after": 51
+    },
+    {
+      "night": 3,
+      "seed": 19,
+      "result": "lost",
+      "ticks": 2458,
+      "score": 0,
+      "rss_mb_after": 51.5
+    },
+    {
+      "night": 1,
+      "seed": 20,
+      "result": "lost",
+      "ticks": 2735,
+      "score": 0,
+      "rss_mb_after": 57.1
+    },
+    {
+      "night": 2,
+      "seed": 21,
+      "result": "lost",
+      "ticks": 4796,
+      "score": 0,
+      "rss_mb_after": 48.4
+    },
+    {
+      "night": 3,
+      "seed": 22,
+      "result": "lost",
+      "ticks": 4060,
+      "score": 5,
+      "rss_mb_after": 48.3
+    },
+    {
+      "night": 1,
+      "seed": 23,
+      "result": "lost",
+      "ticks": 1905,
+      "score": 0,
+      "rss_mb_after": 48.3
+    },
+    {
+      "night": 2,
+      "seed": 24,
+      "result": "lost",
+      "ticks": 2474,
+      "score": 0,
+      "rss_mb_after": 51.7
+    },
+    {
+      "night": 3,
+      "seed": 25,
+      "result": "lost",
+      "ticks": 3716,
+      "score": 5,
+      "rss_mb_after": 55.1
+    },
+    {
+      "night": 1,
+      "seed": 26,
+      "result": "lost",
+      "ticks": 1271,
+      "score": 0,
+      "rss_mb_after": 57.2
+    },
+    {
+      "night": 2,
+      "seed": 27,
+      "result": "lost",
+      "ticks": 1581,
+      "score": 0,
+      "rss_mb_after": 54.3
+    },
+    {
+      "night": 3,
+      "seed": 28,
+      "result": "lost",
+      "ticks": 2374,
+      "score": 0,
+      "rss_mb_after": 48.5
+    },
+    {
+      "night": 1,
+      "seed": 29,
+      "result": "lost",
+      "ticks": 1742,
+      "score": 0,
+      "rss_mb_after": 48.6
+    },
+    {
+      "night": 2,
+      "seed": 30,
+      "result": "lost",
+      "ticks": 1292,
+      "score": 0,
+      "rss_mb_after": 48.6
+    },
+    {
+      "night": 3,
+      "seed": 31,
+      "result": "lost",
+      "ticks": 3046,
+      "score": 0,
+      "rss_mb_after": 48.6
+    },
+    {
+      "night": 1,
+      "seed": 32,
+      "result": "lost",
+      "ticks": 1521,
+      "score": 0,
+      "rss_mb_after": 48.6
+    },
+    {
+      "night": 2,
+      "seed": 33,
+      "result": "lost",
+      "ticks": 3550,
+      "score": 0,
+      "rss_mb_after": 48.6
+    },
+    {
+      "night": 3,
+      "seed": 34,
+      "result": "lost",
+      "ticks": 1729,
+      "score": 0,
+      "rss_mb_after": 48.6
+    },
+    {
+      "night": 1,
+      "seed": 35,
+      "result": "lost",
+      "ticks": 1685,
+      "score": 0,
+      "rss_mb_after": 48.6
+    },
+    {
+      "night": 2,
+      "seed": 36,
+      "result": "lost",
+      "ticks": 1403,
+      "score": 5,
+      "rss_mb_after": 48.6
+    },
+    {
+      "night": 3,
+      "seed": 37,
+      "result": "lost",
+      "ticks": 2218,
+      "score": 0,
+      "rss_mb_after": 48.9
+    },
+    {
+      "night": 1,
+      "seed": 38,
+      "result": "lost",
+      "ticks": 1908,
+      "score": 0,
+      "rss_mb_after": 50
+    },
+    {
+      "night": 2,
+      "seed": 39,
+      "result": "lost",
+      "ticks": 1627,
+      "score": 0,
+      "rss_mb_after": 48.8
+    },
+    {
+      "night": 3,
+      "seed": 40,
+      "result": "lost",
+      "ticks": 1746,
+      "score": 0,
+      "rss_mb_after": 48.8
+    },
+    {
+      "night": 1,
+      "seed": 41,
+      "result": "lost",
+      "ticks": 1473,
+      "score": 0,
+      "rss_mb_after": 49
+    },
+    {
+      "night": 2,
+      "seed": 42,
+      "result": "lost",
+      "ticks": 1263,
+      "score": 0,
+      "rss_mb_after": 50.7
+    },
+    {
+      "night": 3,
+      "seed": 43,
+      "result": "lost",
+      "ticks": 5447,
+      "score": 10,
+      "rss_mb_after": 55.6
+    },
+    {
+      "night": 1,
+      "seed": 44,
+      "result": "lost",
+      "ticks": 3271,
+      "score": 0,
+      "rss_mb_after": 48.9
+    },
+    {
+      "night": 2,
+      "seed": 45,
+      "result": "lost",
+      "ticks": 1177,
+      "score": 0,
+      "rss_mb_after": 48.9
+    },
+    {
+      "night": 3,
+      "seed": 46,
+      "result": "lost",
+      "ticks": 1701,
+      "score": 0,
+      "rss_mb_after": 48.9
+    },
+    {
+      "night": 1,
+      "seed": 47,
+      "result": "lost",
+      "ticks": 991,
+      "score": 0,
+      "rss_mb_after": 48.9
+    },
+    {
+      "night": 2,
+      "seed": 48,
+      "result": "lost",
+      "ticks": 1440,
+      "score": 0,
+      "rss_mb_after": 49
+    },
+    {
+      "night": 3,
+      "seed": 49,
+      "result": "lost",
+      "ticks": 2732,
+      "score": 0,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 1,
+      "seed": 50,
+      "result": "lost",
+      "ticks": 3561,
+      "score": 10,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 2,
+      "seed": 51,
+      "result": "lost",
+      "ticks": 1676,
+      "score": 0,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 3,
+      "seed": 52,
+      "result": "lost",
+      "ticks": 3383,
+      "score": 0,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 1,
+      "seed": 53,
+      "result": "lost",
+      "ticks": 2887,
+      "score": 0,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 2,
+      "seed": 54,
+      "result": "lost",
+      "ticks": 2539,
+      "score": 0,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 3,
+      "seed": 55,
+      "result": "lost",
+      "ticks": 2438,
+      "score": 0,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 1,
+      "seed": 56,
+      "result": "lost",
+      "ticks": 1517,
+      "score": 0,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 2,
+      "seed": 57,
+      "result": "lost",
+      "ticks": 2209,
+      "score": 0,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 3,
+      "seed": 58,
+      "result": "lost",
+      "ticks": 2420,
+      "score": 0,
+      "rss_mb_after": 49.2
+    },
+    {
+      "night": 1,
+      "seed": 59,
+      "result": "lost",
+      "ticks": 2218,
+      "score": 0,
+      "rss_mb_after": 49.3
+    },
+    {
+      "night": 2,
+      "seed": 60,
+      "result": "lost",
+      "ticks": 1483,
+      "score": 0,
+      "rss_mb_after": 49.3
+    },
+    {
+      "night": 3,
+      "seed": 61,
+      "result": "lost",
+      "ticks": 2210,
+      "score": 0,
+      "rss_mb_after": 49.4
+    },
+    {
+      "night": 1,
+      "seed": 62,
+      "result": "lost",
+      "ticks": 1202,
+      "score": 0,
+      "rss_mb_after": 49.4
+    },
+    {
+      "night": 2,
+      "seed": 63,
+      "result": "lost",
+      "ticks": 3440,
+      "score": 0,
+      "rss_mb_after": 49.4
+    },
+    {
+      "night": 3,
+      "seed": 64,
+      "result": "lost",
+      "ticks": 3925,
+      "score": 0,
+      "rss_mb_after": 49.4
+    },
+    {
+      "night": 1,
+      "seed": 65,
+      "result": "lost",
+      "ticks": 5420,
+      "score": 0,
+      "rss_mb_after": 49.4
+    },
+    {
+      "night": 2,
+      "seed": 66,
+      "result": "lost",
+      "ticks": 3573,
+      "score": 5,
+      "rss_mb_after": 49.4
+    },
+    {
+      "night": 3,
+      "seed": 67,
+      "result": "lost",
+      "ticks": 3007,
+      "score": 0,
+      "rss_mb_after": 49.3
+    }
+  ],
+  "node": "v24.16.0",
+  "pass": true
+}

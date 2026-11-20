@@ -1,106 +1,116 @@
-# Đảo Đèn Lồng
+# Đảo Đèn Lồng — v1.0.0
 
-> Video demo: _(sẽ thêm ở Phase 4)_
+Game 3D góc nhìn thứ ba chạy trên trình duyệt (Three.js). Mây, người giữ đèn nhỏ tuổi đội nón lá quàng khăn đỏ, phải **giữ các Đèn Lồng Lớn cháy tới bình minh** trên ba hòn đảo trong ba đêm. Đèn cạn dầu dần, Bóng Mực tìm tới hút dầu, Gió Lạc rình cướp đom đóm. Có chế độ **headless tất định**, **benchmark** và **soak test** theo Test Contract v1.3 ([game.contract.json](game.contract.json)).
 
-Game 3D góc nhìn thứ ba (Three.js, chạy trên trình duyệt). Mây, người giữ đèn nhỏ tuổi đội nón lá quàng khăn đỏ, phải **giữ các Đèn Lồng Lớn cháy tới bình minh** trên ba hòn đảo trong ba đêm. Đèn cạn dầu dần, Bóng Mực tìm tới hút dầu, Gió Lạc rình cướp đom đóm. Có chế độ **headless tất định** theo **Test Contract v1.2** ([game.contract.json](game.contract.json)).
+![Đêm 1: đèn sắp cạn dầu, Bóng Mực đang hút](docs/proof/phase-3/img/n1-prompt-refuel.png)
 
-## Cài đặt và chạy (macOS / Linux / Windows, cần Node ≥ 18)
+| | |
+|---|---|
+| ![Đêm 3, Đảo Chuông](docs/proof/phase-2/img/n3-tier2.png) | ![Benchmark: 200 Bóng Mực](docs/proof/phase-4/img/bench-scene.png) |
+
+> Video demo: [docs/demo/](docs/demo/) (đính kèm Release v1.0.0)
+
+## Yêu cầu hệ thống
+
+- **Node.js ≥ 18** (đã thử với Node 20, 22, 24 trên CI) và npm.
+- Trình duyệt có **WebGL 2**: Chrome, Edge hoặc Firefox bản mới. Khuyên dùng GPU rời hoặc GPU tích hợp đời mới.
+- **Benchmark** cần cài Google Chrome, Chromium hoặc Microsoft Edge. Script tự tìm trình duyệt; có thể chỉ định bằng `--chrome <đường dẫn>` hoặc biến `CHROME`.
+- Windows 10/11, macOS hoặc Linux. Màn hình ≥ 1280×720.
+
+## Cài đặt và chơi (3 lệnh)
 
 ```bash
-npm install
+git clone https://github.com/Stormaka/K5-L3A-Day12-HoangBaoNguyen-2A202603384-AI-SDLC.git dao-den-long
+cd dao-den-long && npm install
 npm start          # mở http://localhost:5173
 ```
 
-Chạy test và bằng chứng: `npm test` · `npm run proof`
+**Không muốn cài npm?** Tải `dao-den-long-v1.0.0.zip` ở trang Release, giải nén rồi chạy `node server.js`. three.js đã có sẵn trong gói.
 
-## Ba đêm
+**Docker:**
 
-| Đêm | Đảo | Đèn (cần sáng lúc bình minh) | Thời gian | Điểm đặc biệt |
-|---|---|---|---|---|
-| 1 | Đảo Bến: đảo tròn 40 m | 5 (cần 3) | 4:00 | Bóng Mực mỗi 8 s, tối đa 6 |
-| 2 | Đảo Cau: 2 đảo nối bằng cầu tre | 6 (cần 4) | 4:30 | Bục nhảy bắn sang đảo kia, Gió Lạc, Bùa Gió trên cầu |
-| 3 | Đảo Chuông: 3 tầng, tháp chuông | 7 (cần 5) | 5:00 | Dốc lên tầng 1, bục nhảy lên tầng 2, gió mạnh mỗi 30 s, Bóng Mực nhanh hơn |
+```bash
+docker build -t dao-den-long:1.0.0 .
+docker run --rm -p 5173:5173 dao-den-long:1.0.0
+```
 
-Menu → giới thiệu Đêm (lời Ông Đăng) → chơi → kết quả → Đêm kế tiếp. Thắng Đêm 3 thì tới màn **Bình Minh** với tổng điểm. Thua thì chơi lại Đêm đó.
+## Điều khiển (đổi được trong Cài đặt → Đổi phím)
 
-## Điều khiển
-
-| Phím | Hành động |
+| Phím mặc định | Hành động |
 |---|---|
-| `W A S D` / mũi tên | Di chuyển (theo hướng camera) |
-| Kéo chuột trái, `Q` / `C` | Xoay camera (độ nhạy chỉnh trong Cài đặt) |
+| `W A S D` | Di chuyển (theo hướng camera) |
+| Kéo chuột trái, `Q` / `C` | Xoay camera |
 | `Space` | Nhảy |
-| `Shift` | Lướt: 14 m/s trong 0.2 s, hồi 1.5 s |
+| `Shift` trái | Lướt: 14 m/s trong 0.2 s, hồi 1.5 s |
 | `E` | Đứng cách đèn ≤ 2 m: thắp (10 đom đóm), thắp lại (5), hoặc châm dầu (1 đom đóm = 10 dầu) |
-| `F` | Tỏa Sáng: tốn 3 đom đóm, làm choáng và đẩy lùi Bóng Mực trong 5 m, hồi 3 s |
-| `Esc` / `P` | Tạm dừng: Tiếp tục / Chơi lại Đêm / Cài đặt / Về menu |
+| `F` | Tỏa Sáng: tốn 3 đom đóm, làm choáng và đẩy lùi Bóng Mực trong 5 m |
+| `P` / `Esc` | Tạm dừng: Tiếp tục / Chơi lại Đêm / Cài đặt / Về menu |
 
-Cài đặt gồm âm lượng, độ nhạy chuột và **Bảng màu dễ phân biệt** (chế độ mù màu). Tất cả được lưu lại.
+**Cài đặt** (được lưu lại):
+- Âm lượng, độ nhạy chuột.
+- Đổi phím: báo khi trùng phím, có nút khôi phục mặc định.
+- Bảng màu dễ phân biệt (cho người mù màu).
+- Phụ đề / chỉ báo hình ảnh: Bóng Mực xuất hiện (kèm mũi tên chỉ hướng), gió sắp thổi, 10 giây cuối, đèn sắp cạn dầu.
+- Giảm chuyển động: tắt rung camera và hiệu ứng chớp màn hình.
+- Chữ lớn ×1.25. Chữ thường đã ≥ 18 px ở 1280×720.
 
 ## Luật chơi
 
-- **Dầu đèn:**
-  - Đèn vừa thắp có 100 dầu, hao 1 dầu/giây.
-  - Đèn hết dầu thì tắt. Đèn đã từng sáng chỉ cần 5 đom đóm để thắp lại.
-  - Đèn còn dưới 30 dầu thì nhấp nháy và **mất vùng an toàn 6 m**.
-- **Bóng Mực:**
-  - Tìm tới đèn yếu và **hút dầu** 5/giây.
-  - Lại gần (≤ 6 m) thì chúng bỏ đèn và đuổi theo bạn. Tỏa Sáng trúng con đang hút thì được thêm điểm.
-- **Đom đóm:**
-  - Tự nhặt khi tới gần (≤ 1 m).
-  - Sức chứa ban đầu 10, mỗi lần thắp thành công +2, tối đa 20.
-- **Ngọn Lửa:**
-  - Có 3 Ngọn Lửa. Bị Bóng Mực chạm thì mất 1 lửa và rơi một nửa số đom đóm đang mang.
-  - Rơi khỏi đảo thì mất 1 lửa và toàn bộ đom đóm.
-- **Gió Lạc** (Đêm 2–3) cướp 3 đom đóm khi bạn mang ≥ 5. **Bùa Gió** cho 10 s chạy nhanh và lướt không cần hồi chiêu.
-- **Thắng:** còn sống lúc bình minh với ít nhất 60% số đèn **đang sáng**. Thắp hết đèn sớm **không** kết thúc Đêm.
-- **Thua:** hết Ngọn Lửa, hoặc tới bình minh mà không đủ đèn sáng.
+- Ba Đêm (4:00, 4:30, 5:00).
+- **Thắng:** còn sống lúc bình minh với ít nhất 60% số đèn **đang sáng** (3/5, 4/6, 5/7).
+- **Thua:** hết 3 Ngọn Lửa, hoặc tới bình minh mà không đủ đèn sáng.
+- **Dầu đèn:** đèn vừa thắp có 100 dầu và hao 1/s. Dưới 30 dầu, đèn nhấp nháy, mất vùng an toàn 6 m, và bị Bóng Mực hút dầu 5/s.
+- **Sức chứa đom đóm:** ban đầu 10, mỗi lần thắp thành công +2, tối đa 20.
+- **Ba hòn đảo:**
+  - Đêm 2: hai đảo nối bằng cầu tre, có bục nhảy.
+  - Đêm 3: ba tầng, có dốc, tháp chuông và gió mạnh.
+- **Gió Lạc** cướp đom đóm. **Bùa Gió** cho chạy nhanh và lướt không cần hồi chiêu.
+- **Điểm:**
+  - +5 mỗi đom đóm nạp vào đèn.
+  - +100 thắp lần đầu, +40 thắp lại.
+  - +5 mỗi Bóng Mực trúng Tỏa Sáng (+15 nếu nó đang hút dầu).
+  - Lúc bình minh, chỉ khi thắng: +50 + số dầu còn lại cho mỗi đèn sáng, +50 cho mỗi Ngọn Lửa.
+- **Bảng xếp hạng:**
+  - Sau màn Bình Minh hoặc khi thua, nhập tên (3–12 ký tự; chữ có dấu tiếng Việt cũng được) để lưu điểm.
+  - Lưu top 10 vào `data/leaderboard.json`; đổi thư mục bằng biến `DDL_DATA_DIR`.
+  - Xem trong menu → Bảng xếp hạng.
 
-| Sự kiện | Điểm |
+## Kiểm thử và công cụ
+
+| Việc | Lệnh |
 |---|---|
-| Mỗi đom đóm nạp vào đèn (thắp, thắp lại, châm dầu) | +5 |
-| Thắp lần đầu / thắp lại | +100 / +40 |
-| Mỗi Bóng Mực trúng Tỏa Sáng (đang hút dầu) | +5 (+15) |
-| Bình minh, khi thắng: mỗi đèn đang sáng | +50 + số dầu còn lại (làm tròn xuống) |
-| Bình minh, khi thắng: mỗi Ngọn Lửa còn lại | +50 |
+| Test tự động (73 test) | `npm test` |
+| Kịch bản headless + bằng chứng (28 kịch bản, 2 lần mỗi kịch bản để kiểm tất định) | `npm run proof` |
+| Headless (Test Contract) | `node src/headless.js --seed 1 --night 1 --ticks 600 --out out/run.jsonl [--scenario f.json] [--inputs f.json] [--snapshot-every 10]` |
+| Benchmark (cửa sổ 1280×720, tắt vsync) | `node scripts/bench.js --seed 42 --duration 30 --out bench.json` |
+| Soak test (10 Đêm trong 1 tiến trình) | `node --expose-gc scripts/soak.js --seed 7 --nights 10 --out soak.json` |
+| Xuất bảng xếp hạng | `node server.js --export-leaderboard out.json` |
+| Bot tự chơi (chứng minh Đêm thắng được) | `node scripts/bot.js <night> <seed> out.json` |
+| Đóng gói bản Release | `npm run package` → `dist/dao-den-long-v1.0.0.zip` |
 
-Tổng điểm game là tổng điểm các Đêm đã thắng.
+**Headless:**
+- Mã thoát: `0` bình thường; `2` khi file inputs/scenario sai định dạng; `1` khi tham số sai.
+- Một Đêm đầy đủ chạy dưới 1 s.
 
-## Chế độ headless (Test Contract v1.2)
+**Benchmark:**
+- Mở Chrome có cửa sổ, ép viewport đúng 1280×720, tắt vsync bằng `--disable-gpu-vsync --disable-frame-rate-limit`.
+- Dựng cảnh chuẩn: Đêm 1, 200 Bóng Mực, 100 đom đóm, L1–L3 sáng, camera bay vòng bán kính 30 m.
+- Khởi động 3 s, đo 30 s, rồi ghi `bench.json`.
+- `peak_mem_mb` là tổng bộ nhớ của cây tiến trình trình duyệt; cách đo được giải thích trong file kết quả.
 
-```bash
-node src/headless.js --seed 1 --night 1 --ticks 600 --out out/run.jsonl \
-  [--scenario f.json] [--inputs f.json] [--snapshot-every 10]
-```
-
-- **Chạy:** 60 tick/giây cố định, không cần cửa sổ hay GPU. `--night` nhận 1, 2 hoặc 3. Một Đêm đầy đủ chạy dưới 1 s.
-- **Mã thoát:**
-  - `0`: bình thường.
-  - `2`: file inputs/scenario sai định dạng hoặc không đọc được.
-  - `1`: tham số dòng lệnh sai.
-- **Sự kiện:** dòng `night_start` được ghi ở tick 0.
-
-**Ghi chú về `tuning`:** mọi số là số chuẩn của Ticket-02/03.
-
-- `score.per_second_left = 0` vì thưởng thời gian đã bị bỏ.
-- Điểm thắp lại (40), Tỏa Sáng trúng bóng đang hút (15) và đèn sáng lúc bình minh (50) không có khóa riêng trong contract; chúng nằm trong `WORLD` ở [src/sim/config.js](src/sim/config.js).
-- Các chỗ ticket chưa nói rõ được ghi thành giả định trong [phase-2.md](docs/notes/phase-2.md) (A2-xx) và [phase-3.md](docs/notes/phase-3.md) (A3-xx).
+**Kết quả tự đo** (máy dev, RTX 5050 Laptop): xem [docs/proof/phase-4/bench.json](docs/proof/phase-4/bench.json) và [soak.json](docs/proof/phase-4/soak.json).
 
 ## Tài liệu
 
-- Phase 3:
-  - Quyết định thiết kế [ADR 0001](docs/adr/0001-lantern-fuel-and-dawn-win.md).
-  - Ghi chú: [docs/notes/phase-3.md](docs/notes/phase-3.md).
-  - Bằng chứng: [docs/proof/phase-3/README.md](docs/proof/phase-3/README.md).
-  - Breaking change: [CHANGELOG.md](CHANGELOG.md).
-- Phase 2: [docs/notes/phase-2.md](docs/notes/phase-2.md) · [docs/proof/phase-2/README.md](docs/proof/phase-2/README.md)
-- Phase 1: [docs/notes/phase-1.md](docs/notes/phase-1.md) · [docs/proof/phase-1/README.md](docs/proof/phase-1/README.md)
-- Harness AI:
+- **Theo phase:**
+  - Phase 1–4: ghi chú [docs/notes/](docs/notes/), bằng chứng [docs/proof/](docs/proof/).
+  - Quyết định thiết kế: [docs/adr/](docs/adr/).
+  - Lịch sử thay đổi: [CHANGELOG.md](CHANGELOG.md).
+- **Tổng kết:** retro [docs/retro.md](docs/retro.md).
+- **Bản quyền:** [CREDITS.md](CREDITS.md) · [LICENSE](LICENSE) (MIT).
+- **Harness AI:**
   - [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md).
-  - [.claude/settings.json](.claude/settings.json) (hooks).
-  - Skill [.claude/skills/verify-game](.claude/skills/verify-game/SKILL.md).
+  - Hooks trong [.claude/settings.json](.claude/settings.json).
+  - Skill [verify-game](.claude/skills/verify-game/SKILL.md).
   - CI [.github/workflows/ci.yml](.github/workflows/ci.yml) (Node 20/22/24) + [pre-push hook](.githooks/pre-push).
-
-## Đề bài lab
-
-Tài liệu đề bài gốc của giảng viên (README, GUIDE, CHECKPOINTS, SUBMISSION, RULES, RUBRIC) được giữ trong [docs/lab/](docs/lab/).
+- **Đề bài lab gốc:** [docs/lab/](docs/lab/).

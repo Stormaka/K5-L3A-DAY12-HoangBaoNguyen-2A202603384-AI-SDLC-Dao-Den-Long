@@ -1,5 +1,39 @@
 # Changelog
 
+## v1.0.0 / phase-4 — Ticket-04 "Bình minh: phát hành v1.0.0" + Test Contract v1.3
+
+Ghi chú và giả định: [docs/notes/phase-4.md](docs/notes/phase-4.md). Số đo: [docs/proof/phase-4/](docs/proof/phase-4/). Retro: [docs/retro.md](docs/retro.md).
+
+### ⚠ Breaking changes
+- **`run_cmd`:** đổi từ `npm start` thành `node server.js`. `npm start` vẫn chạy được, nhưng npm không chuyển tiếp tham số `--export-leaderboard` sang server.
+- **Phím tạm dừng mặc định:** `P` (đổi được). `Esc` vẫn tạm dừng, trừ khi người chơi gán `Esc` cho hành động khác.
+- **`game.contract.json` v1.3:** thêm `bench_cmd`, `soak_cmd`; mọi khóa v1.0–v1.2 giữ nguyên.
+
+### Thêm mới
+- **Benchmark** `node scripts/bench.js --seed 42 --duration 30 --out bench.json`:
+  - Chạy cảnh chuẩn: Đêm 1, 200 Bóng Mực, 100 đom đóm, L1–L3 sáng, camera bay vòng.
+  - Chrome mở có cửa sổ, viewport 1280×720, tắt vsync. Tính avg / 1% thấp / p95, thời gian tải, đỉnh bộ nhớ.
+- **Soak test** `node --expose-gc scripts/soak.js --seed 7 --nights 10 --out soak.json`:
+  - 10 Đêm trong một tiến trình, input ngẫu nhiên theo seed.
+  - Đo bộ nhớ ổn định ở đầu và cuối.
+- **Bảng xếp hạng cục bộ:**
+  - Nhập tên sau Bình Minh hoặc khi thua; tên 3–12 ký tự, nhận chữ có dấu tiếng Việt.
+  - Lưu top 10 vào `data/leaderboard.json`; xem từ menu.
+  - Xuất bằng `node server.js --export-leaderboard out.json`.
+- **Dễ tiếp cận:**
+  - Đổi phím cho 11 hành động, báo trùng phím, khôi phục mặc định.
+  - Phụ đề / chỉ báo: Bóng Mực xuất hiện kèm mũi tên ở mép màn hình, gió sắp thổi, 10 giây cuối, đèn sắp cạn dầu.
+  - Giảm chuyển động. Chữ ≥ 18 px, tùy chọn chữ lớn ×1.25.
+- **Đóng gói:**
+  - `npm run package` tạo bản Release chạy bằng `node server.js`, không cần `npm install`.
+  - Thêm `Dockerfile`.
+  - README cho bản phát hành; CREDITS đầy đủ.
+
+### Hiệu năng
+- Bóng Mực và đom đóm vẽ bằng `InstancedMesh`; tia hút dầu gộp vào một `LineSegments`.
+- Sim: bỏ việc sao chép và sắp xếp mảng đèn ở mỗi tick. Mỗi tick nhanh hơn khoảng 7 lần; đầu ra headless giống từng byte.
+- Kết quả bench trên máy dev: avg 243.6 FPS, 1% thấp 74.4 FPS, tải 1.9 s.
+
 ## phase-3 — Ticket-03 "Đèn cạn dầu" + Test Contract v1.2
 
 Quyết định thiết kế: [docs/adr/0001-lantern-fuel-and-dawn-win.md](docs/adr/0001-lantern-fuel-and-dawn-win.md). Giả định và test bị đổi: [docs/notes/phase-3.md](docs/notes/phase-3.md).
