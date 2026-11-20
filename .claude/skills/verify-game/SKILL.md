@@ -1,14 +1,16 @@
 ---
 name: verify-game
-description: Run the game's verification and save evidence for the current phase (tests, headless scenarios via the real CLI, determinism, screenshots). Use before tagging a phase or when asked to "verify", "prove", or "collect evidence".
+description: Run the game's verification and save evidence for the current phase (tests, headless scenarios via the real CLI for all 3 nights, determinism, timing, bot wins, screenshots, FPS). Use before tagging a phase or when asked to "verify", "prove", or "collect evidence".
 ---
 
 # Verify Đảo Đèn Lồng and save evidence
 
-1. `npm test 2>&1 | tee docs/proof/<phase>/test-report.txt` — all must pass. If red: fix code, never the assertion (unless a ticket changed the rule → note it in docs/notes/<phase>.md).
-2. `npm run proof -- <phase>` — runs scenarios in `scripts/proof.js` through `headless_cmd`, twice each (determinism), writes `docs/proof/<phase>/headless-evidence.md` + `runs/*.jsonl`. Add new cases there for new ticket rules.
-3. If the bot scenario must be regenerated (rules changed): `node scripts/bot.js 1 tests/scenarios/win-seed1.inputs.json`.
-4. Screenshots (visual-only requirements): start `PORT=5199 node server.js`, then
-   `chrome --headless=new --use-angle=swiftshader --enable-unsafe-swiftshader --window-size=1280,720 --virtual-time-budget=4000 --screenshot=docs/proof/<phase>/img/<name>.png "http://localhost:5199/?autostart&seed=3&lit=K"`
-   Open the PNG and check it really shows the requirement.
-5. Update the traceability table in `docs/proof/<phase>/README.md` (requirement → how → evidence → PASS/NOT MET). Write NOT MET honestly.
+1. `npm test > docs/proof/<phase>/test-report.txt 2>&1` — all must pass. If red: fix code, never the assertion (unless a ticket changed the rule → mark the test `T<n>:` and note it in docs/notes/<phase>.md).
+2. `node scripts/proof.js <phase>` — runs every case in `scripts/proof.js` through `headless_cmd` (each with `--night`), twice each (determinism), checks per-case expectations and ≤ 30 s, writes `docs/proof/<phase>/headless-evidence.md` + `runs/*.jsonl`. Add a case (and a `tests/scenarios/*.json` file) for every new ticket feature.
+3. If rules changed, regenerate the winning runs and check every night is still winnable:
+   `node scripts/bot.js <night> 1 tests/scenarios/win-n<night>-seed1.inputs.json` for nights 1-3 (exit 0 = won).
+4. Screenshots: start `PORT=5199 node server.js`, then in **PowerShell** (bash paths do not work with Chrome on Windows):
+   `Start-Process chrome -ArgumentList '--headless=new','--use-angle=swiftshader','--enable-unsafe-swiftshader','--window-size=1280,720','--virtual-time-budget=4000',"--screenshot=<abs path>.png",'http://localhost:5199/?autostart&night=N&seed=S&lit=K&t=TICKS' -Wait`
+   Overlays: `?screen=menu|intro|pause|settings|result|dawn`. Open each PNG and check it really shows the requirement.
+5. FPS (needs a real GPU): `node scripts/fps.js gpu "autostart&night=3&seed=4&lit=7&t=900&demo&fpsreport"` → avg/min FPS at 1280×720.
+6. Update the traceability table in `docs/proof/<phase>/README.md` (requirement → how → evidence → Đạt / Chưa kiểm chứng). Write unverified items honestly (audio, hand-play feel).
