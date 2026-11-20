@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      { "matcher": "Edit|Write", "hooks": [{ "type": "command", "command": "node scripts/hooks/post-edit.js", "timeout": 120 }] }
+    ],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "node scripts/hooks/stop-gate.js", "timeout": 180 }] }
+    ]
+  }
+}
