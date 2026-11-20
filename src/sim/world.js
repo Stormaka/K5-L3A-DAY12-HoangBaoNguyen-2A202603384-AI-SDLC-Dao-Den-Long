@@ -32,7 +32,11 @@ export const BUTTONS = ['jump', 'interact', 'pulse', 'dash', 'pause'];
 // ---------------------------------------------------------------- build
 
 /** Build the initial world for a night. Building never emits events nor awards score. */
-export function createWorld(seed, scenario = {}, night = 1) {
+/**
+ * opts.bench (Ticket-04 benchmark scene, NOT reachable from scenario files so headless output never changes):
+ * no fuel burn/drain, no pickup, no damage/steal, no detection (shades keep wandering), no end of night.
+ */
+export function createWorld(seed, scenario = {}, night = 1, opts = {}) {
   const map = getNight(night);
   if (!map) throw new FormatError(`night ${night} does not exist`);
   const rng = createRng(seed);
@@ -42,6 +46,7 @@ export function createWorld(seed, scenario = {}, night = 1) {
     rng,
     map,
     night,
+    bench: !!opts.bench,
     tick: 0,
     simTick: 0,
     state: 'playing',
@@ -279,13 +284,13 @@ export function step(w, input) {
     }
   }
   // Ticket-03: fuel burns (1/s) and is drained by shades in 'drain' (5/s each); <= 0 -> lantern goes out
-  for (const l of w.lanterns) if (l.lit) l.fuel -= DECAY_U;
+  if (!w.bench) for (const l of w.lanterns) if (l.lit) l.fuel -= DECAY_U;
   for (const s of w.shades) {
-    if (s.state !== 'drain' || !s.target || !s.target.lit) continue;
+    if (w.bench || s.state !== 'drain' || !s.target || !s.target.lit) continue;
     s.target.fuel -= DRAIN_U;
     if (++s.drainTicks % W.fuel_drain_event_ticks === 0) emit(w, 'fuel_drain', { lantern_id: s.target.id, shade_id: s.id, fuel: fuel1(s.target.fuel) });
   }
-  for (const l of [...w.lanterns].sort(byId)) {
+  for (const l of w.lanterns /* created in id order L1..Ln, never reordered */) {
     if (!l.lit || l.fuel > 0) continue;
     l.lit = false;
     l.fuel = 0;
@@ -313,7 +318,7 @@ export function step(w, input) {
   else p.vx = p.vy = p.vz = 0;
 
   // 4. pick up motes and charms
-  if (!p.dead) {
+  if (!p.dead && !w.bench) {
     for (let i = 0; i < w.motes.length && p.carried < capacity(p); ) {
       const m = w.motes[i];
       if (inR(dXZ(p, m), T.pickup_radius) && Math.abs(p.y - m.y) <= W.pickup_height + EPS) {
@@ -337,7 +342,7 @@ export function step(w, input) {
     const refuelUse = (l) => Math.min(p.carried, Math.ceil((FUEL_MAX_U - l.fuel) / MOTE_FUEL_U));
     let best = null;
     let bestD = Infinity;
-    for (const l of [...w.lanterns].sort(byId)) {
+    for (const l of w.lanterns /* created in id order L1..Ln, never reordered */) {
       if (l.lit && refuelUse(l) <= 0) continue; // full lantern: not selectable
       const d = dXZ(p, l);
       if (inR(d, T.interact_radius) && d < bestD - EPS) {
@@ -442,7 +447,7 @@ export function step(w, input) {
   for (const d of w.drifters) moveDrifter(w, d);
 
   // 9. contact: drifters steal first, then shades hit (ascending id), max 1 flame per tick
-  if (!p.dead) {
+  if (!p.dead && !w.bench) {
     for (const d of [...w.drifters].sort(byId)) {
       if ((d.state !== 'idle' && d.state !== 'chase') || p.carried <= 0) continue;
       if (!inR(dXZ(d, p), W.drifter_hit)) continue;
@@ -490,6 +495,11 @@ export function step(w, input) {
     const pts = w.map.shadePoints; // A2-09: "điểm sương" = the night's shade spawn points
     const pt = pts[Math.floor(w.rng() * pts.length)];
     w.drifters.push(newDrifter(w, nextId(w, 'D', 'nextDrifterId', new Set(w.drifters.map((d) => d.id))), pt[0], pt[2]));
+  }
+  if (w.bench) {
+    w.simTick = nst;
+    w.tick++;
+    return; // benchmark scene never ends
   }
   // 11. win / lose (no_flames always loses; all lit wins, even on the dawn tick)
   w.simTick = nst;
@@ -643,7 +653,7 @@ function dropMotes(w, n) {
 function moveShade(w, s) {
   if (s.evict) return;
   const p = w.player;
-  const alive = !p.dead;
+  const alive = !p.dead && !w.bench;
   const d = dXZ(s, p);
   if (s.state === 'drain') {
     // Ticket-03 drain exits: Mây within 6 m -> chase; lantern out / refuelled to >= 30 / > 2 m away -> wander
@@ -700,7 +710,7 @@ function moveShade(w, s) {
 function nearestLantern(w, s, pred) {
   let best = null;
   let bd = Infinity;
-  for (const l of [...w.lanterns].sort(byId)) {
+  for (const l of w.lanterns /* created in id order L1..Ln, never reordered */) {
     if (!pred(l)) continue;
     const d = dXZ(s, l);
     if (d < bd - EPS) [best, bd] = [l, d];

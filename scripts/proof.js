@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import os from 'node:os';
 
-const phase = process.argv[2] || 'phase-3';
+const phase = process.argv[2] || 'phase-4';
 const dir = `docs/proof/${phase}`;
 mkdirSync(`${dir}/runs`, { recursive: true });
 const contract = JSON.parse(readFileSync('game.contract.json', 'utf8'));

@@ -3,3 +3,7 @@ node_modules/
 .env.*
 *.log
 out/
+/data/
+/dist/
+/bench.json
+/soak.json

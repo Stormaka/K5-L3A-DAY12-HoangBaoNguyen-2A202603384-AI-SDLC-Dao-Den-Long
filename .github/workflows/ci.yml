@@ -13,3 +13,8 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run proof
+      - name: soak (10 nights, 0 crashes, memory <= 1.2x)
+        run: |
+          node --expose-gc scripts/soak.js --seed 7 --nights 10 --out out/soak.json
+          node -e "const s=require('./out/soak.json'); if (s.crashes || s.mem_end_mb > 1.2 * s.mem_start_mb) { console.error(s); process.exit(1) }"
+      - run: node scripts/package.js

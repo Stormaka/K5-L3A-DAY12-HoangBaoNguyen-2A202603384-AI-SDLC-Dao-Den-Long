@@ -23,7 +23,7 @@ const tmpFile = (name, data) => {
 };
 
 test('C-01 game.contract.json v1.2: all fields, tuning mirrors the game and the Ticket-02/03 standard numbers', () => {
-  assert.equal(contract.contract_version, '1.2');
+  assert.equal(contract.contract_version, '1.3'); // T4: v1.3 keeps every v1.2 key
   for (const k of ['team', 'build_cmd', 'run_cmd', 'headless_cmd']) assert.equal(typeof contract[k], 'string', k);
   assert.deepEqual(contract.tuning, TUNING);
   assert.equal(contract.tuning.lantern_count_night1, 5);

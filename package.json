@@ -1,8 +1,8 @@
 {
   "name": "dao-den-long",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Đảo Đèn Lồng — 3D game (Three.js), 3 nights, lantern fuel, deterministic headless mode (Test Contract v1.2).",
+  "description": "Đảo Đèn Lồng — 3D game (Three.js), 3 nights, deterministic headless mode, benchmark, soak (Test Contract v1.3).",
   "type": "module",
   "engines": {
     "node": ">=18"
@@ -11,10 +11,13 @@
     "start": "node server.js",
     "headless": "node src/headless.js",
     "test": "node scripts/run-tests.js",
-    "proof": "node scripts/proof.js phase-3",
+    "proof": "node scripts/proof.js phase-4",
     "bot": "node scripts/bot.js",
     "fps": "node scripts/fps.js",
-    "prepare": "git config core.hooksPath .githooks || true"
+    "prepare": "git config core.hooksPath .githooks || true",
+    "bench": "node scripts/bench.js --seed 42 --duration 30 --out bench.json",
+    "soak": "node --expose-gc scripts/soak.js --seed 7 --nights 10 --out soak.json",
+    "package": "node scripts/package.js"
   },
   "dependencies": {
     "three": "0.160.0"
