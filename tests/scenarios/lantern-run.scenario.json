@@ -1,0 +1,6 @@
+{
+  "random_motes": false,
+  "random_shades": false,
+  "motes": [[0, 0, 4], [0, 0, 8], [0, 0, 12], [0, 0, 16], [0, 0, 20]],
+  "shades": []
+}
